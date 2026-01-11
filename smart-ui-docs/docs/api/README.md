@@ -88,10 +88,8 @@ Smart UI 提供了完整的 TypeScript 类型定义，您可以在 [Type Definit
 
 ## 社区与支持
 
-- [GitHub 仓库](https://github.com/your-repo/smart-ui)
-- [问题反馈](https://github.com/your-repo/smart-ui/issues)
-- [贡献指南](https://github.com/your-repo/smart-ui/blob/main/CONTRIBUTING.md)
+- [GitHub 仓库](https://github.com/huaguanjun/smart-ui)
+- [问题反馈](https://github.com/huaguanjun/smart-ui/issues)
+- [贡献指南](https://github.com/huaguanjun/smart-ui/blob/main/CONTRIBUTING.md)
 
-## 更新日志
-
-查看 [更新日志](https://github.com/your-repo/smart-ui/releases) 了解最新功能和改进。
+查看 [更新日志](https://github.com/huaguanjun/smart-ui/releases) 了解最新功能和改进。
