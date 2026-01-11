@@ -1,0 +1,50 @@
+{
+  "name": "smart-form",
+  "version": "1.0.0",
+  "description": "A smart UI component library for Vue 3",
+  "type": "module",
+  "main": "dist/smart-ui.umd.cjs",
+  "module": "dist/smart-ui.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/smart-ui.js",
+      "require": "./dist/smart-ui.umd.cjs",
+      "types": "./dist/index.d.ts"
+    },
+    "./element": {
+      "import": "./dist/smart-ui-element.js",
+      "require": "./dist/smart-ui-element.umd.cjs",
+      "types": "./dist/index.d.ts"
+    },
+    "./ant": {
+      "import": "./dist/smart-ui-ant.js",
+      "require": "./dist/smart-ui-ant.umd.cjs",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "keywords": [
+    "vue",
+    "form",
+    "table",
+    "smart-ui",
+    "element-ui",
+    "ant-design-vue"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "vue": "^3.3.4"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^4.4.0",
+    "typescript": "^5.2.2",
+    "vite": "^4.5.0",
+    "vue-tsc": "^1.8.22"
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "name": "smart-ui-docs",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "docs:dev": "vuepress dev docs",
+    "docs:build": "vuepress build docs"
+  },
+  "dependencies": {
+    "ant-design-vue": "^4.2.6",
+    "element-plus": "^2.13.0",
+    "smart-form": "file:../smart-ui",
+    "vue": "^3.3.4",
+    "vuepress-theme-plume": "^1.0.0-rc.185"
+  },
+  "devDependencies": {
+    "@vuepress/bundler-vite": "^2.0.0-rc.26",
+    "@vuepress/plugin-back-to-top": "^2.0.0-rc.121",
+    "@vuepress/plugin-medium-zoom": "^2.0.0-rc.121",
+    "@vuepress/plugin-prismjs": "^2.0.0-rc.121",
+    "@vuepress/plugin-register-components": "^2.0.0-rc.118",
+    "photoswipe": "^5.4.4",
+    "sass-embedded": "^1.97.2",
+    "typescript": "^5.2.2",
+    "vuepress": "^2.0.0-rc.26",
+    "vuepress-theme-hope": "^2.0.0-rc.102"
+  },
+  "description": "Smart UI 文档项目，用于展示 SmartForm 和 SmartTable 组件的功能和使用方法。",
+  "keywords": [
+    "smart-ui",
+    "vuepress",
+    "documentation",
+    "smart-form",
+    "smart-table"
+  ],
+  "author": "",
+  "license": "ISC"
+}
