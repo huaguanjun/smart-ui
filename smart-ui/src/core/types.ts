@@ -167,6 +167,24 @@ export interface FieldInstance {
   setValue: (value: any) => void
 }
 
+// 按钮配置接口
+export interface ButtonConfig {
+  // 是否显示按钮
+  visible?: boolean
+  // 按钮文本
+  text?: string
+  // 按钮类型
+  type?: 'primary' | 'default' | 'success' | 'warning' | 'danger'
+  // 按钮尺寸
+  size?: SizeType
+  // 按钮样式
+  style?: Record<string, any>
+  // 按钮类名
+  class?: string | string[]
+  // 其他自定义属性
+  [key: string]: any
+}
+
 // 表单属性
 export interface SmartFormProps {
   // 使用的 UI 适配器
@@ -189,6 +207,10 @@ export interface SmartFormProps {
   disabled?: boolean
   // 通用的字段 span 值
   itemSpan?: number
+  // 提交按钮配置
+  submitButton?: ButtonConfig
+  // 取消按钮配置
+  cancelButton?: ButtonConfig
   // 其他自定义属性
   [key: string]: any
 }

@@ -8,18 +8,18 @@
       :rules="formRules"
       :adapter="adapter"
       label-width="120px"
+      :submit-button="{ text: '提交表单', type: 'primary', size: 'medium' }"
+      :cancel-button="{ text: '重置表单', size: 'medium' }"
+      @submit="handleFormSubmit"
+      @cancel="handleFormReset"
     >
-      <div class="form-actions">
-        <button @click="handleFormSubmit" class="btn-submit">提交表单</button>
-        <button @click="handleFormReset" class="btn-reset">重置表单</button>
-      </div>
     </smart-form>
     
   </div>
 </template>
 
 <script>
-import { SmartForm } from 'smart-form'
+import SmartForm from '../../../../smart-ui/src/components/form/SmartForm.vue'
 
 export default {
   components: {
@@ -78,8 +78,12 @@ export default {
   },
   methods: {
     // 表单提交
-    handleFormSubmit() {
-      alert('表单提交成功！')
+    handleFormSubmit(isValid, model) {
+      if (isValid) {
+        alert('表单提交成功！提交的数据：' + JSON.stringify(model, null, 2))
+      } else {
+        alert('表单验证失败，请检查必填项！')
+      }
     },
     
     // 表单重置
@@ -142,43 +146,5 @@ export default {
   line-height: 1.6;
 }
 
-/* 表单操作按钮容器 */
-.form-actions {
-  margin-top: 24px;
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-  padding-top: 20px;
-  border-top: 1px solid #f0f2f5;
-}
 
-/* 提交按钮样式 */
-.btn-submit {
-  padding: 10px 24px;
-  background: linear-gradient(135deg, #42b883, #359b70);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 600;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 12px rgba(66, 184, 131, 0.3), 0 2px 6px rgba(0, 0, 0, 0.15);
-  position: relative;
-  overflow: hidden;
-}
-
-/* 重置按钮样式 */
-.btn-reset {
-  padding: 10px 24px;
-  background: linear-gradient(135deg, #64748b, #475569);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 600;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 12px rgba(100, 116, 139, 0.3), 0 2px 6px rgba(0, 0, 0, 0.15);
-}
 </style>

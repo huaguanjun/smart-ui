@@ -9,9 +9,9 @@ export default defineConfig({
   build: {
     lib: {
       entry: {
-        'smart-ui': path.resolve(__dirname, 'src/index.ts'),
-        'smart-ui-element': path.resolve(__dirname, 'src/element.ts'),
-        'smart-ui-ant': path.resolve(__dirname, 'src/ant.ts')
+        '@smart-ui/core': path.resolve(__dirname, 'src/index.ts'),
+        '@smart-ui/element': path.resolve(__dirname, 'src/element.ts'),
+        '@smart-ui/ant': path.resolve(__dirname, 'src/ant.ts')
       },
       name: 'SmartUI',
       fileName: (format, entryName) => {

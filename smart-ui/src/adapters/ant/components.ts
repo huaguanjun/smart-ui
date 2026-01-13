@@ -13,12 +13,15 @@ export const antComponentsMap = {
   },
   select: {
     component: 'a-select',
-    props: (config: FieldConfig) => ({
-      placeholder: config.placeholder,
-      disabled: config.disabled,
-      mode: config.mode,
-      ...config.antProps
-    }),
+    props: (config: FieldConfig) =>{
+      debugger
+      return ({
+        placeholder: config.placeholder,
+        disabled: config.disabled,
+        mode: config.mode,
+        ...config.antProps
+      })
+    },
     optionsComponent: 'a-select-option',
     optionProps: (option: any) => ({
       value: option.value,

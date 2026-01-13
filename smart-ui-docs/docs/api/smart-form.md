@@ -17,6 +17,8 @@ SmartForm 是 Smart UI 的核心表单组件，通过配置化的方式快速生
 | size | `'small' \| 'medium' \| 'large'` | 表单尺寸 | `'medium'` |
 | disabled | `boolean` | 是否禁用整个表单 | `false` |
 | readonly | `boolean` | 是否只读整个表单 | `false` |
+| submitButton | `ButtonConfig` | 提交按钮配置 | - |
+| cancelButton | `ButtonConfig` | 取消按钮配置 | - |
 
 ### 验证相关
 
@@ -60,7 +62,19 @@ SmartForm 是 Smart UI 的核心表单组件，通过配置化的方式快速生
 | labelWidth | `string \| number` | 字段标签宽度 | - |
 | size | `'small' \| 'medium' \| 'large'` | 字段尺寸 | - |
 | slot | `string` | 自定义插槽名称 | - |
-| 
+
+## ButtonConfig 类型
+
+| 属性名 | 类型 | 说明 | 默认值 |
+|-------|------|------|-------|
+| visible | `boolean` | 是否显示按钮 | `true` |
+| text | `string` | 按钮文本 | - |
+| type | `'primary' \| 'default' \| 'success' \| 'warning' \| 'danger'` | 按钮类型 | - |
+| size | `'small' \| 'medium' \| 'large'` | 按钮尺寸 | - |
+| style | `Record<string, any>` | 按钮样式 | - |
+| class | `string \| string[]` | 按钮类名 | - |
+| [key: string] | `any` | 其他按钮属性 | - |
+
 ### FieldType 枚举
 
 ```typescript
@@ -101,7 +115,8 @@ type FieldType =
 | 事件名 | 说明 | 回调参数 |
 |-------|------|--------|
 | validate | 验证结果变化时触发 | `{ field: string, valid: boolean, message: string }` |
-| submit | 表单提交时触发 | `{ values: any, valid: boolean, errors: any }` |
+| submit | 表单提交时触发 | `(isValid: boolean, model: Record<string, any>)` |
+| cancel | 表单取消时触发 | - |
 | reset | 表单重置时触发 | - |
 | change | 字段值变化时触发 | `{ field: string, value: any, oldValue: any }` |
 | blur | 字段失焦时触发 | `{ field: string, event: Event }` |
@@ -181,9 +196,9 @@ const fields = ref([
   { name: 'email', label: '邮箱', type: 'input', rules: [{ type: 'email', message: '请输入有效的邮箱地址' }] }
 ])
 
-const handleSubmit = ({ values, valid }) => {
-  if (valid) {
-    console.log('表单提交:', values)
+const handleSubmit = (isValid, model) => {
+  if (isValid) {
+    console.log('表单提交:', model)
   }
 }
 </script>

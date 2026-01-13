@@ -1,5 +1,5 @@
 <template>
-  <el-form v-bind="formProps" class="smart-form-element">
+  <el-form v-bind="formProps" class="smart-form-element" ref="formRef">
     <el-row :gutter="20">
       <template v-if="fields?.length">
         <el-col
@@ -30,9 +30,8 @@
                     :is="componentChildrenMap[field.type]"
                     :label="option.label"
                     :value="option.value"
-                  >
-                    {{ field.type === 'select' ? undefined : option.label }}
-                  </component>
+                    :popper-append-to-body="false"
+                  />
                 </template>
               </component>
             </slot>
@@ -43,12 +42,43 @@
       <!-- 自定义内容 -->
       <slot />
     </el-row>
+    
+    <!-- 表单操作按钮 -->
+    <el-row :gutter="20" style="margin-top: 20px;">
+      <el-col :span="24" style="text-align: right;">
+        <!-- 取消按钮 -->
+        <el-button
+          v-if="cancelButton.visible !== false"
+          :type="cancelButton.type ?? 'default'"
+          :size="cancelButton.size ?? formProps.size"
+          :style="cancelButton.style"
+          :class="cancelButton.class"
+          @click="handleCancel"
+          v-bind="cancelButton"
+        >
+          {{ cancelButton.text ?? '取消' }}
+        </el-button>
+        
+        <!-- 提交按钮 -->
+        <el-button
+          v-if="submitButton.visible !== false"
+          :type="submitButton.type ?? 'primary'"
+          :size="submitButton.size ?? formProps.size"
+          :style="{ ...submitButton.style, marginLeft: '10px' }"
+          :class="submitButton.class"
+          @click="handleSubmit"
+          v-bind="submitButton"
+        >
+          {{ submitButton.text ?? '提交' }}
+        </el-button>
+      </el-col>
+    </el-row>
   </el-form>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import type { FieldConfig } from '../../core/types'
+import { computed, ref } from 'vue'
+import type { FieldConfig, ButtonConfig } from '../../core/types'
 import { elementComponentsMap } from './components'
 
 /* -------------------------------- props -------------------------------- */
@@ -58,16 +88,31 @@ const props = defineProps<{
   fields?: FieldConfig[]
   rules?: Record<string, any[]>
   itemSpan?: number
+  submitButton?: ButtonConfig
+  cancelButton?: ButtonConfig
+  [key: string]: any
 }>()
 
-const { model, fields, rules, itemSpan } = props
+const { model, fields, rules, itemSpan, submitButton = {}, cancelButton = {} } = props
+
+/* ---------------------------- emit events ---------------------------- */
+
+const emit = defineEmits<{
+  (e: 'submit', isValid: boolean, model: Record<string, any>): void
+  (e: 'cancel'): void
+}>()
+
+/* ---------------------------- form ref ----------------------------- */
+
+const formRef = ref<any>(null)
 
 /* ---------------------------- el-form props ----------------------------- */
 
 const formProps = computed(() => ({
+  ...props,
   model,
   rules,
-  itemSpan,
+  itemSpan
 }))
 
 /* -------------------------- 组件映射定义 -------------------------- */
@@ -135,6 +180,32 @@ function getComponentProps(field: FieldConfig) {
     ...rest,
     ...(type === 'textarea' ? { type: 'textarea' } : {}),
   }
+}
+
+/* ------------------------ 表单操作 ------------------------ */
+
+/**
+ * 处理表单提交
+ */
+async function handleSubmit() {
+  if (!formRef.value) return
+  
+  try {
+    await formRef.value.validate()
+    emit('submit', true, model)
+  } catch (error) {
+    emit('submit', false, model)
+  }
+}
+
+/**
+ * 处理表单取消
+ */
+function handleCancel() {
+  if (formRef.value) {
+    formRef.value.resetFields()
+  }
+  emit('cancel')
 }
 </script>
 

@@ -1,5 +1,5 @@
 <template>
-  <a-form v-bind="formProps" class="smart-form-ant">
+  <a-form v-bind="formProps" class="smart-form-ant" ref="formRef">
     <a-row>
       <template v-if="fields?.length">
         <a-col
@@ -50,12 +50,43 @@
       <!-- 自定义内容 -->
       <slot />
     </a-row>
+    
+    <!-- 表单操作按钮 -->
+    <a-row style="margin-top: 20px;">
+      <a-col :span="24" style="text-align: right;">
+        <!-- 取消按钮 -->
+        <a-button
+          v-if="cancelButton.visible !== false"
+          :type="cancelButton.type ?? 'default'"
+          :size="cancelButton.size"
+          :style="cancelButton.style"
+          :class="cancelButton.class"
+          @click="handleCancel"
+          v-bind="cancelButton"
+        >
+          {{ cancelButton.text ?? '取消' }}
+        </a-button>
+        
+        <!-- 提交按钮 -->
+        <a-button
+          v-if="submitButton.visible !== false"
+          :type="submitButton.type ?? 'primary'"
+          :size="submitButton.size"
+          :style="{ ...submitButton.style, marginLeft: '10px' }"
+          :class="submitButton.class"
+          @click="handleSubmit"
+          v-bind="submitButton"
+        >
+          {{ submitButton.text ?? '提交' }}
+        </a-button>
+      </a-col>
+    </a-row>
   </a-form>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import type { FieldConfig } from '../../core/types'
+import { computed, ref } from 'vue'
+import type { FieldConfig, ButtonConfig } from '../../core/types'
 import { antComponentsMap } from './components'
 
 /* -------------------------------- props -------------------------------- */
@@ -65,13 +96,28 @@ const props = defineProps<{
   fields?: FieldConfig[]
   rules?: Record<string, any[]>
   itemSpan?: number
+  submitButton?: ButtonConfig
+  cancelButton?: ButtonConfig
+  [key: string]: any
 }>()
 
-const { model, fields, rules, itemSpan } = props
+const { model, fields, rules, itemSpan, submitButton = {}, cancelButton = {} } = props
+
+/* ---------------------------- emit events ---------------------------- */
+
+const emit = defineEmits<{
+  (e: 'submit', isValid: boolean, model: Record<string, any>): void
+  (e: 'cancel'): void
+}>()
+
+/* ---------------------------- form ref ----------------------------- */
+
+const formRef = ref<any>(null)
 
 /* ---------------------------- a-form props ----------------------------- */
 
 const formProps = computed(() => ({
+  ...props,
   model,
   rules,
   itemSpan,
@@ -123,8 +169,8 @@ function hasOptions(type: FieldType): boolean {
  */
 function getComponentProps(field: FieldConfig) {
   const config = antComponentsMap[field.type as keyof typeof antComponentsMap]
-  if (config && typeof config.props === 'function') {
-    return config.props(field)
+  if (config && typeof (config as any).props === 'function') {
+    return typeof (config as any).props === 'function' ? (config as any).props(field) : {}
   }
   
   // 回退逻辑
@@ -139,6 +185,32 @@ function getComponentProps(field: FieldConfig) {
   } = field
 
   return rest
+}
+
+/* ------------------------ 表单操作 ------------------------ */
+
+/**
+ * 处理表单提交
+ */
+async function handleSubmit() {
+  if (!formRef.value) return
+  
+  try {
+    await formRef.value.validateFields()
+    emit('submit', true, model)
+  } catch (error) {
+    emit('submit', false, model)
+  }
+}
+
+/**
+ * 处理表单取消
+ */
+function handleCancel() {
+  if (formRef.value) {
+    formRef.value.resetFields()
+  }
+  emit('cancel')
 }
 </script>
 

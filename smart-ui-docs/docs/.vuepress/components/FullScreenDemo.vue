@@ -26,6 +26,8 @@
       <div class="fullscreen-demo-content">
         <!-- 智能表单生成 -->
         <FormDemo v-if="menuKey === 'form'" :adapter="adapter" />
+        <!-- 异步智能表单生成 -->
+        <AsyncFormDemo v-else-if="menuKey === 'async-form'" :adapter="adapter" />
         <!-- 智能表格生成 -->
         <TableDemo v-else-if="menuKey === 'table'" :adapter="adapter" />
       </div>
@@ -37,22 +39,30 @@
 import { ref } from 'vue'
 import FullScreenModal from './FullScreenModal.vue'
 import FormDemo from './FormDemo.vue'
+import AsyncFormDemo from './SmartFormAsyncExample.vue'
 import TableDemo from './TableDemo.vue'
 
 // 菜单数据
 const menuItems = [
   {
     key: 'form',
-    label: '智能表单',
+    label: '基础表单',
     icon: '📝',
     description: '通过简单配置生成复杂表单，支持多种字段类型和验证规则'
+  },
+  {
+    key:'async-form',
+    label: '异步表单',
+    icon: '📝',
+    description: '支持异步加载字段配置、选项数据和初始值的智能表单'
   },
   {
     key: 'table',
     label: '智能表格',
     icon: '📊',
     description: '通过配置生成功能完整的表格，支持分页、选择、排序等高级功能'
-  }
+  },
+  
 ]
 
 // 响应式数据

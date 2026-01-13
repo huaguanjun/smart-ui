@@ -39,7 +39,7 @@
 </template>
 
 <script>
-import { SmartTable } from 'smart-form'
+import SmartTable  from '../../../../smart-ui/src/components/table/SmartTable.vue'
 
 export default {
   components: {

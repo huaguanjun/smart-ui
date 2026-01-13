@@ -3,75 +3,115 @@
 SmartForm 是 Smart UI 的核心组件之一，它可以通过简单的 JS 配置自动生成复杂的表单。
 
 ## 基本用法
-
+<SmartFormAsyncExample />
 ```vue
 <template>
-  <smart-form
-    :model="formData"
-    :fields="fields"
-    :rules="rules"
-  >
-    <!-- 表单内容 -->
-  </smart-form>
+  <div>
+    <smart-form
+      :model="formData"
+      :fields="fields"
+      :rules="rules"
+      :submit-button="{ text: '提交', type: 'primary' }"
+      :cancel-button="{ text: '取消' }"
+      @submit="handleSubmit"
+      @cancel="handleCancel"
+    >
+      <!-- 表单内容 -->
+    </smart-form>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 
 // 表单数据
 const formData = ref({
-  username: '',
-  email: '',
-  password: ''
+  name: '', // 简单输入框
+  city: ''  // 异步加载选项的下拉框
 })
 
 // 验证规则
 const rules = ref({
-  username: [
-    { required: true, message: '请输入用户名', trigger: 'blur' },
-    { min: 3, max: 20, message: '长度在 3 到 20 个字符', trigger: 'blur' }
+  name: [
+    { required: true, message: '请输入姓名', trigger: 'blur' }
   ],
-  email: [
-    { required: true, message: '请输入邮箱', trigger: 'blur' },
-    { type: 'email', message: '请输入有效的邮箱地址', trigger: 'blur' }
-  ],
-  password: [
-    { required: true, message: '请输入密码', trigger: 'blur' },
-    { min: 6, message: '密码长度不能少于 6 个字符', trigger: 'blur' }
+  city: [
+    { required: true, message: '请选择城市', trigger: 'change' }
   ]
 })
 
-// 表单字段配置
-const fields = [
+// 响应式字段配置
+const fields = ref([
   {
-    name: 'username',
-    label: '用户名',
+    name: 'name',
+    label: '姓名',
     type: 'input',
-    placeholder: '请输入用户名'
+    placeholder: '请输入姓名',
+    rules: rules.value.name
   },
   {
-    name: 'email',
-    label: '邮箱',
-    type: 'input',
-    placeholder: '请输入邮箱'
-  },
-  {
-    name: 'password',
-    label: '密码',
-    type: 'input',
-    placeholder: '请输入密码',
-    inputType: 'password'
+    name: 'city',
+    label: '城市',
+    type: 'select',
+    placeholder: '请选择城市',
+    rules: rules.value.city,
+    options: [] // 初始为空，后续异步加载
   }
-]
+])
+
+// 模拟从服务端异步获取城市选项
+async function loadCityOptions() {
+  try {
+    // 模拟网络延迟
+    await new Promise(resolve => setTimeout(resolve, 800))
+    
+    // 从服务端获取城市数据
+    const cityOptions = [
+      { label: '北京', value: 'beijing' },
+      { label: '上海', value: 'shanghai' },
+      { label: '广州', value: 'guangzhou' },
+      { label: '深圳', value: 'shenzhen' }
+    ]
+    
+    // 更新字段配置中的options
+    const cityField = fields.value.find(field => field.name === 'city')
+    if (cityField) {
+      cityField.options = cityOptions
+    }
+    
+    // 设置默认值
+    formData.value.city = 'beijing'
+  } catch (error) {
+    console.error('加载城市选项失败:', error)
+  } finally {
+    
+  }
+}
+
+// 组件挂载时加载城市选项
+onMounted(() => {
+  loadCityOptions()
+})
+
+// 表单提交处理
+const handleSubmit = (isValid, model) => {
+  if (isValid) {
+    console.log('表单提交:', model)
+    alert('提交成功！姓名：' + model.name + '，城市：' + model.city)
+  }
+}
+
+// 表单取消处理
+const handleCancel = () => {
+  console.log('表单取消')
+  // 重置表单数据
+  formData.value = {
+    name: '',
+    city: 'beijing'
+  }
+}
 </script>
 ```
-
-## 可交互演示
-
-以下是 Smart UI 的综合演示，您可以体验表单生成、表格生成和适配器切换等功能：
-
-<FullScreenDemo />
-
 ## 配置选项
 
 ### SmartForm Props
@@ -88,6 +128,8 @@ const fields = [
 | size | `'small'  'medium'  'large'` | 表单大小 | `'medium'` |
 | disabled | `boolean` | 是否禁用表单 | `false` |
 | itemSpan | `number` | 通用的字段 span 值 | - |
+| submitButton | `ButtonConfig` | 提交按钮配置 | - |
+| cancelButton | `ButtonConfig` | 取消按钮配置 | - |
 
 ### FieldConfig
 
@@ -222,153 +264,122 @@ SmartForm 支持以下字段类型：
 ## 示例
 
 ### 完整表单示例
-
 ```vue
 <template>
-  <smart-form
-    :model="formData"
-    :rules="rules"
-    :fields="formFields"
-    label-width="100px"
-  >
-    <!-- 自定义用户名字段 -->
-    <template #username="{ field, model }">
-      <div class="custom-field">
-        <el-input
-          v-model="model[field.name]"
-          :placeholder="field.placeholder"
-          prefix-icon="el-icon-user"
-          clearable
-        ></el-input>
-        <div class="field-hint">请输入3-20个字符的用户名</div>
-      </div>
-    </template>
-    
-    <div class="form-actions">
-      <button @click="handleSubmit">提交表单</button>
-      <button @click="handleReset">重置表单</button>
+  <div>
+    <!-- 加载状态 -->
+    <div v-if="loading" class="loading-container">
+      <div class="loading-spinner"></div>
+      <p>正在加载表单配置...</p>
     </div>
-  </smart-form>
+    
+    <!-- 表单渲染 -->
+    <smart-form
+      v-else
+      :model="formData"
+      :fields="formFields"
+      :rules="formRules"
+      :submit-button="{ text: '提交', type: 'primary' }"
+      :cancel-button="{ text: '取消' }"
+      @submit="handleSubmit"
+      @cancel="handleCancel"
+    />
+  </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 
-const formData = ref({
-  username: '',
-  email: '',
-  password: '',
-  gender: '',
-  hobbies: [],
-  birthday: null,
-  bio: '',
-  active: false,
-  score: 50
-})
+const formData = ref({})
+const formFields = ref([])
+const formRules = ref({})
+const loading = ref(true)
 
-const rules = ref({
-  username: [
-    { required: true, message: '请输入用户名', trigger: 'blur' },
-    { min: 3, max: 20, message: '长度在 3 到 20 个字符', trigger: 'blur' }
-  ],
-  email: [
-    { required: true, message: '请输入邮箱', trigger: 'blur' },
-    { type: 'email', message: '请输入有效的邮箱地址', trigger: 'blur' }
-  ],
-  password: [
-    { required: true, message: '请输入密码', trigger: 'blur' },
-    { min: 6, message: '密码长度不能少于 6 个字符', trigger: 'blur' }
-  ]
-})
-
-const formFields = ref([
-  {
-    name: 'username',
-    label: '用户名',
-    type: 'input',
-    placeholder: '请输入用户名',
-    rules: rules.value.username
-  },
-  {
-    name: 'email',
-    label: '邮箱',
-    type: 'input',
-    placeholder: '请输入邮箱',
-    rules: rules.value.email
-  },
-  {
-    name: 'password',
-    label: '密码',
-    type: 'input',
-    placeholder: '请输入密码',
-    rules: rules.value.password,
-    inputType: 'password'
-  },
-  {
-    name: 'gender',
-    label: '性别',
-    type: 'radio',
-    options: [
-      { label: '男', value: 'male' },
-      { label: '女', value: 'female' }
-    ]
-  },
-  {
-    name: 'hobbies',
-    label: '爱好',
-    type: 'checkbox',
-    options: [
-      { label: '阅读', value: 'reading' },
-      { label: '运动', value: 'sports' },
-      { label: '音乐', value: 'music' },
-      { label: '旅行', value: 'travel' }
-    ]
-  },
-  {
-    name: 'birthday',
-    label: '生日',
-    type: 'date',
-    placeholder: '选择生日'
-  },
-  {
-    name: 'bio',
-    label: '简介',
-    type: 'textarea',
-    placeholder: '请输入个人简介',
-    rows: 3
-  },
-  {
-    name: 'active',
-    label: '状态',
-    type: 'switch'
-  },
-  {
-    name: 'score',
-    label: '评分',
-    type: 'slider',
-    min: 0,
-    max: 100,
-    step: 1
+// 模拟从服务端获取完整表单配置
+async function loadFormConfig() {
+  loading.value = true
+  
+  try {
+    // 模拟网络延迟
+    await new Promise(resolve => setTimeout(resolve, 1500))
+    
+    // 1. 从服务端获取字段配置
+    const response = await fetch('/api/form-config')
+    const config = await response.json()
+    
+    // 2. 从服务端获取表单初始数据
+    const dataResponse = await fetch('/api/form-data')
+    const initialData = await dataResponse.json()
+    
+    // 3. 从服务端获取选项数据
+    const optionsResponse = await fetch('/api/form-options')
+    const optionsData = await optionsResponse.json()
+    
+    // 4. 整合配置和数据
+    const fieldsWithOptions = config.fields.map(field => {
+      // 为需要选项的字段添加从服务端获取的options
+      if (['select', 'radio', 'checkbox'].includes(field.type) && optionsData[field.name]) {
+        return {
+          ...field,
+          options: optionsData[field.name]
+        }
+      }
+      return field
+    })
+    
+    // 更新响应式数据
+    formFields.value = fieldsWithOptions
+    formData.value = initialData
+    formRules.value = config.rules
+  } catch (error) {
+    console.error('加载表单配置失败:', error)
+    alert('表单加载失败，请刷新页面重试')
+  } finally {
+    loading.value = false
   }
-])
-
-const handleSubmit = () => {
-  console.log('表单提交:', formData.value)
-  alert('表单提交成功！')
 }
 
-const handleReset = () => {
-  formData.value = {
-    username: '',
-    email: '',
-    password: '',
-    gender: '',
-    hobbies: [],
-    birthday: null,
-    bio: '',
-    active: false,
-    score: 50
+onMounted(() => {
+  loadFormConfig()
+})
+
+const handleSubmit = (isValid, model) => {
+  if (isValid) {
+    console.log('表单提交:', model)
+    // 执行实际的提交逻辑
   }
+}
+
+const handleCancel = () => {
+  console.log('表单取消')
+  // 执行取消逻辑
 }
 </script>
+
+<style scoped>
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  text-align: center;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #42b883;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+</style>
+```
 ```
