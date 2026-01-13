@@ -1,14 +1,34 @@
 <template>
   <div class="smart-form-async-example">
     <h3 class="form-demo-title">示例</h3>
+    
+    <!-- Adapter 切换 -->
+    <div class="adapter-switcher">
+      <label>UI 库：</label>
+      <div class="switcher-buttons">
+        <button 
+          :class="['switch-btn', { active: adapter === 'element' }]" 
+          @click="adapter = 'element'"
+        >
+          Element Plus
+        </button>
+        <button 
+          :class="['switch-btn', { active: adapter === 'ant' }]" 
+          @click="adapter = 'ant'"
+        >
+          Ant Design Vue
+        </button>
+      </div>
+    </div>
+    
     <div>
       <smart-form
-        adapter="ant"
+        :adapter="adapter"
         :model="formData"
         :fields="fields"
         :rules="rules"
-        :submit-button="{ text: '提交', type: 'primary' }"
-        :cancel-button="{ text: '取消' }"
+        :submit-button="{ title: '提交', type: 'primary'}"
+        :cancel-button="{ title: '重置' }"
         @submit="handleSubmit"
         @cancel="handleCancel"
         label-position="right"
@@ -31,6 +51,9 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { SmartForm } from '@smart-ui/core'
+
+// UI 适配器切换
+const adapter = ref<'element' | 'ant'>('element')
 
 // 表单数据
 const formData = ref({
@@ -85,7 +108,7 @@ const fields = ref([
     name: 'role',
     label: '角色',
     type: 'select',
-    antProps: {
+    typeProps: {
       allowClear: true,
       placeholder: '请选择角色',
     },
@@ -100,11 +123,11 @@ const fields = ref([
     name: 'department',
     label: '部门',
     type: 'select',
-    rules: rules.value.department,
-    antProps: {
+    typeProps: {
       allowClear: true,
       placeholder: '请选择部门',
     },
+    rules: rules.value.department,
     options: [] // 初始为空，后续异步加载
   }
 ])
@@ -188,7 +211,53 @@ const handleCancel = () => {
   color: #303133;
 }
 
+/* Adapter 切换器样式 */
+.adapter-switcher {
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
 
+.adapter-switcher label {
+  font-weight: 500;
+  color: #303133;
+  font-size: 14px;
+}
+
+.switcher-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.switch-btn {
+  padding: 6px 16px;
+  border: 1px solid #dcdfe6;
+  background: #fff;
+  color: #606266;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s;
+  outline: none;
+}
+
+.switch-btn:hover {
+  color: #409eff;
+  border-color: #c6e2ff;
+  background-color: #ecf5ff;
+}
+
+.switch-btn.active {
+  color: #fff;
+  background-color: #409eff;
+  border-color: #409eff;
+}
+
+.switch-btn.active:hover {
+  background-color: #66b1ff;
+  border-color: #66b1ff;
+}
 
 .submit-result {
   margin-top: 20px;

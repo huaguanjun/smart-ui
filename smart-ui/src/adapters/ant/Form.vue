@@ -64,7 +64,7 @@
           @click="handleCancel"
           v-bind="cancelButton"
         >
-          {{ cancelButton.text ?? '取消' }}
+          {{ cancelButton.title ?? '取消' }}
         </a-button>
         
         <!-- 提交按钮 -->
@@ -77,7 +77,7 @@
           @click="handleSubmit"
           v-bind="submitButton"
         >
-          {{ submitButton.text ?? '提交' }}
+          {{ submitButton.title ?? '提交' }}
         </a-button>
       </a-col>
     </a-row>

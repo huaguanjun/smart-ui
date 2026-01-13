@@ -144,8 +144,51 @@ const handleCancel = () => {
 | disabled | `boolean` | 是否禁用 | `false` |
 | readonly | `boolean` | 是否只读 | `false` |
 | defaultValue | `any` | 默认值 | - |
+| typeProps | `Record<string, any>` | 组件原生属性配置，具有最高优先级 | - |
 | span | `number` | 字段宽度 | - |
 | [key: string] | `any` | 其他自定义属性 | - |
+
+### 属性优先级
+
+SmartForm 组件的属性遵循以下优先级顺序（从高到低）：
+
+1. **typeProps**：组件原生属性配置，具有最高优先级，会覆盖所有其他配置
+2. **适配器兼容处理**：基于用户配置进行跨 UI 库属性兼容处理
+3. **内置属性**：组件内置的基础属性处理
+
+### typeProps 示例
+
+```vue
+const fields = ref([
+  { 
+    name: 'username', 
+    label: '用户名', 
+    type: 'input',
+    // 内置属性
+    placeholder: '请输入用户名',
+    // typeProps 配置，具有最高优先级
+    typeProps: {
+      placeholder: '请输入3-20个字符', // 会覆盖上面的 placeholder
+      clearable: true, // 配置组件原生属性
+      size: 'large' // 配置组件尺寸
+    }
+  }
+])
+
+// 跨 UI 库属性兼容示例
+const selectField = ref([
+  { 
+    name: 'city', 
+    label: '城市', 
+    type: 'select',
+    // 同时支持 antd 的 allowClear 和 element 的 clearable
+    typeProps: {
+      allowClear: true, // antd 属性名
+      clearable: true,  // element 属性名
+      // 适配器会自动处理兼容性
+    }
+  }
+])
 
 ## 插槽使用
 

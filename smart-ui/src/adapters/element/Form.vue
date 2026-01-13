@@ -49,27 +49,23 @@
         <!-- 取消按钮 -->
         <el-button
           v-if="cancelButton.visible !== false"
-          :type="cancelButton.type ?? 'default'"
-          :size="cancelButton.size ?? formProps.size"
           :style="cancelButton.style"
           :class="cancelButton.class"
           @click="handleCancel"
           v-bind="cancelButton"
         >
-          {{ cancelButton.text ?? '取消' }}
+          {{ cancelButton.title ?? '取消' }}
         </el-button>
         
         <!-- 提交按钮 -->
         <el-button
           v-if="submitButton.visible !== false"
-          :type="submitButton.type ?? 'primary'"
-          :size="submitButton.size ?? formProps.size"
           :style="{ ...submitButton.style, marginLeft: '10px' }"
           :class="submitButton.class"
           @click="handleSubmit"
           v-bind="submitButton"
         >
-          {{ submitButton.text ?? '提交' }}
+          {{ submitButton.title ?? '提交' }}
         </el-button>
       </el-col>
     </el-row>
@@ -161,8 +157,8 @@ function hasOptions(type: FieldType): boolean {
  */
 function getComponentProps(field: FieldConfig) {
   const config = elementComponentsMap[field.type as keyof typeof elementComponentsMap]
-  if (config && typeof config.props === 'function') {
-    return config.props(field)
+  if (config && typeof (config as any).props === 'function') {
+    return typeof (config as any).props === 'function' ? (config as any).props(field) : {}
   }
   
   // 回退逻辑

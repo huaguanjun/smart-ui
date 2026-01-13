@@ -71,7 +71,14 @@
 ### 安装
 
 ```bash
-npm install smart-core
+# 安装核心库
+npm install @smart-ui/core
+
+# 安装 Element Plus 适配器
+npm install @smart-ui/element
+
+# 安装 Ant Design Vue 适配器
+npm install @smart-ui/ant
 ```
 
 ### 基础用法
@@ -94,13 +101,28 @@ npm install smart-core
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { SmartForm, SmartTable } from 'smart-form-core'
+import { SmartForm, SmartTable } from '@smart-ui/core'
 
 // 表单数据和配置
 const formData = ref({ username: '', email: '' })
 const formFields = [
-  { name: 'username', label: '用户名', type: 'input' },
-  { name: 'email', label: '邮箱', type: 'input' }
+  { 
+    name: 'username', 
+    label: '用户名', 
+    type: 'input',
+    // typeProps 用于配置组件原生属性，具有最高优先级
+    typeProps: {
+      placeholder: '请输入用户名',
+      clearable: true
+    }
+  },
+  { 
+    name: 'email', 
+    label: '邮箱', 
+    type: 'input',
+    // 内置属性优先级低于 typeProps
+    placeholder: '请输入邮箱'
+  }
 ]
 
 // 表格数据和配置
@@ -114,8 +136,10 @@ const tableColumns = [
   { prop: 'age', label: '年龄' }
 ]
 
-const handleSubmit = (data) => {
-  console.log('表单提交:', data)
+const handleSubmit = (isValid, data) => {
+  if (isValid) {
+    console.log('表单提交:', data)
+  }
 }
 </script>
 ```

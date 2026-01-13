@@ -57,11 +57,44 @@ SmartForm 是 Smart UI 的核心表单组件，通过配置化的方式快速生
 | readonly | `boolean` | 是否只读该字段 | - |
 | placeholder | `string` | 占位符文本 | - |
 | rules | `RuleConfig[]` | 字段验证规则 | - |
+| typeProps | `Record<string, any>` | 组件原生属性配置，具有最高优先级，会覆盖其他配置 | - |
 | span | `number` | 字段跨度（1-24） | - |
 | itemSpan | `number` | 表单项跨度 | - |
 | labelWidth | `string \| number` | 字段标签宽度 | - |
 | size | `'small' \| 'medium' \| 'large'` | 字段尺寸 | - |
 | slot | `string` | 自定义插槽名称 | - |
+
+### 属性优先级
+
+SmartForm 组件的属性遵循以下优先级顺序（从高到低）：
+
+1. **typeProps**：组件原生属性配置，具有最高优先级，会覆盖所有其他配置
+2. **适配器兼容处理**：基于用户配置进行跨 UI 库属性兼容处理
+3. **内置属性**：组件内置的基础属性处理
+
+### typeProps 说明
+
+`typeProps` 用于配置组件的原生属性，它具有最高优先级，可以覆盖任何其他配置。这使得您可以直接使用 UI 库组件的原生属性，同时享受 SmartForm 提供的便捷配置和跨 UI 库兼容性。
+
+```vue
+const fields = [
+  {
+    name: 'username',
+    label: '用户名',
+    type: 'input',
+    // 内置属性
+    placeholder: '请输入用户名',
+    // typeProps 会覆盖内置属性
+    typeProps: {
+      placeholder: '请输入3-20个字符',
+      clearable: true,
+      size: 'large',
+      // 可以使用 UI 库组件的任何原生属性
+      prefixIcon: 'user'
+    }
+  }
+]
+```
 
 ## ButtonConfig 类型
 
