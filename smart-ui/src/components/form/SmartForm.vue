@@ -1,6 +1,7 @@
 <template>
   <!-- 动态渲染适配器组件 -->
   <component
+    ref="formRef"
     :is="formComponent"
     v-bind="mergedFormProps"
     @submit="handleSubmit"
@@ -24,7 +25,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useFormEngine } from '../../core/useFormEngine'
 import ElementForm from '../../adapters/element/Form.vue'
 import AntForm from '../../adapters/ant/Form.vue'
@@ -61,10 +62,13 @@ const currentAdapter = computed(() => resolveAdapter(props.adapter))
 const {
   formProps,
   registerField,
-  unregisterField,
-  validateField,
-  validateForm
+  unregisterField
 } = useFormEngine(props)
+
+/**
+ * 底层表单组件引用
+ */
+const formRef = ref<any>(null)
 
 /**
  * 根据 adapter 选择表单实现
@@ -97,13 +101,49 @@ const handleCancel = () => {
 }
 
 /**
+ * 验证整个表单
+ */
+const validateForm = async (): Promise<boolean> => {
+  if (!formRef.value) return true
+  
+  try {
+    return await formRef.value.validate()
+  } catch (error) {
+    return false
+  }
+}
+
+/**
+ * 验证单个字段
+ */
+const validateField = async (name: string): Promise<boolean> => {
+  if (!formRef.value) return true
+  
+  try {
+    return await formRef.value.validateField(name)
+  } catch (error) {
+    return false
+  }
+}
+
+/**
+ * 重置表单
+ */
+const resetForm = () => {
+  if (formRef.value) {
+    formRef.value.resetFields()
+  }
+}
+
+/**
  * 对外暴露能力
  */
 defineExpose({
   registerField,
   unregisterField,
   validateField,
-  validateForm
+  validateForm,
+  resetForm
 })
 </script>
 

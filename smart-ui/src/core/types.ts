@@ -225,12 +225,6 @@ export interface FormEngine {
   registerField: (field: FieldInstance) => void
   // 注销字段
   unregisterField: (name: string) => void
-  // 验证单个字段
-  validateField: (name: string) => Promise<boolean>
-  // 验证整个表单
-  validateForm: () => Promise<boolean>
-  // 重置表单
-  resetForm: () => void
 }
 
 // 全局配置

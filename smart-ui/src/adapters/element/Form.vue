@@ -226,6 +226,15 @@ function handleCancel() {
   }
   emit('cancel')
 }
+
+/**
+ * 暴露表单实例方法
+ */
+defineExpose({
+  validate: (callback?: (valid: boolean) => void) => formRef.value?.validate(callback),
+  validateField: (prop: string | string[], callback?: (valid: boolean) => void) => formRef.value?.validateField(prop, callback),
+  resetFields: () => formRef.value?.resetFields()
+})
 </script>
 
 <style scoped>

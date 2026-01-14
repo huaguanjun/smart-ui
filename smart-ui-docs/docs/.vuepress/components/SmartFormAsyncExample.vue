@@ -23,6 +23,7 @@
     
     <div>
       <smart-form
+        ref="smartFormRef"
         :adapter="adapter"
         :model="formData"
         :fields="fields"
@@ -40,7 +41,24 @@
         <!-- 表单内容 -->
       </smart-form>
       
-
+      <!-- 外部方法调用演示 -->
+      <div class="external-methods-demo">
+        <h4>外部方法调用演示</h4>
+        <div class="demo-buttons">
+          <button 
+            class="demo-btn" 
+            @click="handleValidateForm"
+          >
+            外部验证表单
+          </button>
+          <button 
+            class="demo-btn" 
+            @click="handleValidateUsername"
+          >
+            单独验证用户名
+          </button>
+        </div>
+      </div>
     </div>
     
     <!-- 表单提交结果 -->
@@ -57,6 +75,9 @@ import { SmartForm } from '@smart-ui/core'
 
 // UI 适配器切换
 const adapter = ref<'element' | 'ant'>('element')
+
+// SmartForm 组件引用，用于调用其暴露的方法
+const smartFormRef = ref<any>(null)
 
 // 表单数据
 const formData = ref({
@@ -320,6 +341,34 @@ const handleCancel = () => {
     manager: ''
   }
 }
+
+// 外部调用表单验证方法
+const handleValidateForm = async () => {
+  if (smartFormRef.value) {
+    try {
+      const isValid = await smartFormRef.value.validateForm()
+      submitResult.value = isValid ? '表单验证通过！' : '表单验证失败，请检查必填项！'
+      console.log('外部调用表单验证结果:', isValid)
+    } catch (error) {
+      submitResult.value = '验证过程中发生错误'
+      console.error('外部调用表单验证失败:', error)
+    }
+  }
+}
+
+// 外部调用单独验证用户名
+const handleValidateUsername = async () => {
+  if (smartFormRef.value) {
+    try {
+      const isValid = await smartFormRef.value.validateField('username')
+      submitResult.value = isValid ? '用户名验证通过！' : '用户名验证失败，请检查输入格式！'
+      console.log('外部调用用户名验证结果:', isValid)
+    } catch (error) {
+      submitResult.value = '用户名验证过程中发生错误'
+      console.error('外部调用用户名验证失败:', error)
+    }
+  }
+}
 </script>
 
 <style scoped>
@@ -416,5 +465,51 @@ const handleCancel = () => {
   font-size: 13px;
   line-height: 1.5;
   color: #606266;
+}
+
+/* 外部方法调用演示区域样式 */
+.external-methods-demo {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #f0f9eb;
+  border-radius: 4px;
+  border: 1px solid #d1fae5;
+}
+
+.external-methods-demo h4 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #065f46;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.demo-buttons {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.demo-btn {
+  padding: 8px 16px;
+  background-color: #10b981;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.demo-btn:hover {
+  background-color: #059669;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.demo-btn:active {
+  transform: translateY(0);
 }
 </style>

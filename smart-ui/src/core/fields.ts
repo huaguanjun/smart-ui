@@ -17,11 +17,11 @@ export function createInputField(config: Partial<FieldConfig> & { name: string }
  */
 export function createSelectField(config: Partial<FieldConfig> & { name: string; options: FieldConfig['options'] }): FieldConfig {
   return {
+    ...config,
     type: 'select',
     label: config.name,
     placeholder: `请选择${config.label || config.name}`,
     options: config.options,
-    ...config
   }
 }
 
@@ -30,10 +30,10 @@ export function createSelectField(config: Partial<FieldConfig> & { name: string;
  */
 export function createRadioField(config: Partial<FieldConfig> & { name: string; options: FieldConfig['options'] }): FieldConfig {
   return {
+    ...config,
     type: 'radio',
     label: config.name,
     options: config.options,
-    ...config
   }
 }
 
@@ -42,10 +42,10 @@ export function createRadioField(config: Partial<FieldConfig> & { name: string; 
  */
 export function createCheckboxField(config: Partial<FieldConfig> & { name: string; options: FieldConfig['options'] }): FieldConfig {
   return {
+    ...config,
     type: 'checkbox',
     label: config.name,
     options: config.options,
-    ...config
   }
 }
 

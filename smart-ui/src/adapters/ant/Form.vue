@@ -235,6 +235,29 @@ function handleCancel() {
   }
   emit('cancel')
 }
+
+/**
+ * 暴露表单实例方法
+ */
+defineExpose({
+  validate: async () => {
+    try {
+      await formRef.value.validateFields()
+      return true
+    } catch (error) {
+      return false
+    }
+  },
+  validateField: async (name: string) => {
+    try {
+      await formRef.value.validateFields([name])
+      return true
+    } catch (error) {
+      return false
+    }
+  },
+  resetFields: () => formRef.value?.resetFields()
+})
 </script>
 
 <style scoped>

@@ -40,7 +40,7 @@ export default defineUserConfig({
    */
   theme: plumeTheme({
     logo: '/logo.svg',
-    docsRepo: 'https://github.com/your-repo/smart-ui',
+    docsRepo: 'https://github.com/huaguanjun/smart-ui',
     docsDir: 'docs',
     docsBranch: 'main',
 
@@ -48,7 +48,7 @@ export default defineUserConfig({
     navbar: [
       { text: '指南', link: '/guide/' },
       { text: 'API 参考', link: '/api/' },
-      { text: 'GitHub', link: 'https://github.com/your-repo/smart-ui' },
+      { text: 'GitHub', link: 'https://github.com/huaguanjun/smart-ui' },
     ],
 
     // 侧边栏
