@@ -344,6 +344,125 @@ SmartForm 支持以下字段类型：
 - `autocomplete`：自动完成
 
 
+## 外部方法调用
+
+SmartForm 组件通过 `defineExpose` 暴露了一些方法，允许您通过 ref 直接调用表单的验证和重置功能。
+
+### 暴露的方法
+
+| 方法名 | 类型 | 说明 |
+|-------|------|------|
+| validateForm | `() => Promise<boolean>` | 验证整个表单，返回验证结果 |
+| validateField | `(name: string) => Promise<boolean>` | 验证单个字段，返回验证结果 |
+| resetForm | `() => void` | 重置表单数据 |
+
+### 使用示例
+
+```vue
+<template>
+  <div>
+    <smart-form
+      ref="smartFormRef"
+      :model="formData"
+      :fields="fields"
+      :rules="rules"
+      :submit-button="{ text: '提交', type: 'primary' }"
+      :cancel-button="{ text: '取消' }"
+      @submit="handleSubmit"
+      @cancel="handleCancel"
+    >
+      <!-- 表单内容 -->
+    </smart-form>
+    
+    <!-- 外部调用按钮 -->
+    <div style="margin-top: 20px;">
+      <button @click="validateForm">外部验证表单</button>
+      <button @click="validateUsername">验证用户名</button>
+      <button @click="resetForm">重置表单</button>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue'
+
+// SmartForm 组件引用
+const smartFormRef = ref(null)
+
+// 表单数据
+const formData = ref({
+  username: '',
+  email: ''
+})
+
+// 验证规则
+const rules = ref({
+  username: [
+    { required: true, message: '请输入用户名', trigger: 'blur' },
+    { min: 3, max: 20, message: '长度在 3 到 20 个字符', trigger: 'blur' }
+  ],
+  email: [
+    { required: true, message: '请输入邮箱', trigger: 'blur' },
+    { type: 'email', message: '请输入有效的邮箱地址', trigger: 'blur' }
+  ]
+})
+
+// 字段配置
+const fields = ref([
+  {
+    name: 'username',
+    label: '用户名',
+    type: 'input',
+    placeholder: '请输入用户名'
+  },
+  {
+    name: 'email',
+    label: '邮箱',
+    type: 'input',
+    placeholder: '请输入邮箱'
+  }
+])
+
+// 外部调用表单验证
+const validateForm = async () => {
+  const isValid = await smartFormRef.value.validateForm()
+  if (isValid) {
+    console.log('表单验证通过！')
+  } else {
+    console.log('表单验证失败，请检查必填项！')
+  }
+}
+
+// 外部调用单个字段验证
+const validateUsername = async () => {
+  const isValid = await smartFormRef.value.validateField('username')
+  if (isValid) {
+    console.log('用户名验证通过！')
+  } else {
+    console.log('用户名验证失败，请检查输入格式！')
+  }
+}
+
+// 外部调用表单重置
+const resetForm = () => {
+  smartFormRef.value.resetForm()
+  console.log('表单已重置！')
+}
+
+// 表单提交处理
+const handleSubmit = (isValid, model) => {
+  if (isValid) {
+    console.log('表单提交:', model)
+  }
+}
+
+// 表单取消处理
+const handleCancel = () => {
+  console.log('表单取消')
+}
+</script>
+```
+
 ## 示例
 
 ### 完整表单示例
