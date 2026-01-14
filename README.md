@@ -1,6 +1,13 @@
-# Smart UI
+<div align="center">
+  <h1>Smart UI</h1>
+  <p>A smart UI component library for Vue 3, generating complex forms and tables through simple configuration, supporting multiple UI library adapters.</p>
+  <p>一款基于 Vue 3 的智能 UI 组件库，通过简单的配置生成复杂表单和表格，支持多种 UI 库适配器。</p>
+</div>
 
-一款基于 Vue 3 的智能 UI 组件库，通过简单的配置生成复杂表单和表格，支持多种 UI 库适配器。
+## 📖 语言切换 / Language Switch
+
+<details>
+<summary>中文 / Chinese</summary>
 
 ## 🌟 核心功能
 
@@ -235,6 +242,246 @@ npm run docs:build
 
 如有问题或建议，欢迎提交 [Issue](https://github.com/huaguanjun/smart-ui/issues) 或 [Pull Request](https://github.com/huaguanjun/smart-ui/pulls)
 
+</details>
+
+<details>
+<summary>English / 英文</summary>
+
+## 🌟 Core Features
+
+### Smart Form
+- ✅ Generate complex forms through configuration
+- ✅ Support multiple field types (input, select, radio, checkbox, date picker, etc.)
+- ✅ Built-in form validation rules
+- ✅ Support custom field rendering
+- ✅ Support dynamic field addition/removal
+- ✅ Support form layout configuration
+
+### Smart Table
+- ✅ Generate complex tables through configuration
+- ✅ Support sorting, filtering, and pagination
+- ✅ Support custom column rendering
+- ✅ Support fixed columns
+- ✅ Support zebra stripes and borders
+- ✅ Support row selection and row operations
+
+## 🛠️ Supported UI Libraries
+
+- **Element Plus**: Enterprise-level UI component library
+- **Ant Design Vue**: Enterprise-level UI component library open-sourced by Alibaba
+
+## 📦 Installation
+
+### Install Core Library
+
+```bash
+# Using npm
+npm install @smart-ui/core
+
+# Using yarn
+yarn add @smart-ui/core
+```
+
+### Install UI Library Adapters
+
+```bash
+# Element Plus adapter
+npm install @smart-ui/element
+
+# Ant Design Vue adapter
+npm install @smart-ui/ant
+```
+
+## 🚀 Quick Start
+
+### Smart Form Usage Example
+
+```vue
+<template>
+  <smart-form
+    :model="formData"
+    :fields="formFields"
+    :rules="formRules"
+    label-width="120px"
+  >
+    <div class="form-actions">
+      <button @click="handleSubmit">Submit</button>
+      <button @click="handleReset">Reset</button>
+    </div>
+  </smart-form>
+</template>
+
+<script setup>
+import { ref } from 'vue'
+import { SmartForm } from '@smart-ui/element'
+
+const formData = ref({
+  username: '',
+  email: '',
+  password: ''
+})
+
+const formFields = ref([
+  { name: 'username', label: 'Username', type: 'input', placeholder: 'Please enter username' },
+  { name: 'email', label: 'Email', type: 'input', placeholder: 'Please enter email', inputType: 'email' },
+  { name: 'password', label: 'Password', type: 'input', placeholder: 'Please enter password', inputType: 'password' }
+])
+
+const formRules = ref({
+  username: [{ required: true, message: 'Please enter username', trigger: 'blur' }],
+  email: [{ required: true, message: 'Please enter email', trigger: 'blur' }, { type: 'email', message: 'Please enter a valid email address', trigger: 'blur' }],
+  password: [{ required: true, message: 'Please enter password', trigger: 'blur' }, { min: 6, max: 20, message: 'Password length should be between 6 and 20 characters', trigger: 'blur' }]
+})
+
+const handleSubmit = () => {
+  console.log('Form submitted:', formData.value)
+}
+
+const handleReset = () => {
+  formData.value = {
+    username: '',
+    email: '',
+    password: ''
+  }
+}
+</script>
+```
+
+### Smart Table Usage Example
+
+```vue
+<template>
+  <smart-table
+    :data="tableData"
+    :columns="tableColumns"
+    :pagination="true"
+  />
+</template>
+
+<script setup>
+import { ref } from 'vue'
+import { SmartTable } from '@smart-ui/element'
+
+const tableData = ref([
+  { id: 1, name: 'Zhang San', age: 25, email: 'zhangsan@example.com' },
+  { id: 2, name: 'Li Si', age: 30, email: 'lisi@example.com' },
+  { id: 3, name: 'Wang Wu', age: 35, email: 'wangwu@example.com' }
+])
+
+const tableColumns = ref([
+  { prop: 'id', label: 'ID', width: 80 },
+  { prop: 'name', label: 'Name', width: 120 },
+  { prop: 'age', label: 'Age', width: 80, align: 'center' },
+  { prop: 'email', label: 'Email' },
+  { 
+    prop: 'action', 
+    label: 'Actions', 
+    width: 150, 
+    align: 'center',
+    formatter: (row) => {
+      return (
+        <div>
+          <button @click="handleEdit(row)">Edit</button>
+          <button @click="handleDelete(row)">Delete</button>
+        </div>
+      )
+    }
+  }
+])
+
+const handleEdit = (row) => {
+  console.log('Edit:', row)
+}
+
+const handleDelete = (row) => {
+  console.log('Delete:', row)
+}
+</script>
+```
+
+## 📁 Project Structure
+
+```
+.
+├── smart-ui/                 # Core component library
+│   ├── src/                 # Source code
+│   │   ├── adapters/        # UI library adapters
+│   │   │   ├── ant/         # Ant Design Vue adapter
+│   │   │   └── element/     # Element Plus adapter
+│   │   ├── components/      # Core components
+│   │   │   ├── form/        # SmartForm component
+│   │   │   └── table/       # SmartTable component
+│   │   ├── core/            # Core logic
+│   │   ├── ant.ts           # Ant Design Vue entry
+│   │   ├── element.ts       # Element Plus entry
+│   │   └── index.ts         # Main entry
+│   ├── dist/                # Build output
+│   ├── package.json         # Package configuration
+│   └── vite.config.ts       # Vite configuration
+├── smart-ui-docs/           # Documentation project
+│   ├── docs/                # Documentation content
+│   ├── package.json         # Documentation package configuration
+│   └── vuepress.config.ts   # VuePress configuration
+└── README.md                # Project README
+```
+
+## 🛠️ Development Guide
+
+### Install Dependencies
+
+```bash
+# Install core library dependencies
+cd smart-ui
+npm install
+
+# Install documentation dependencies
+cd ../smart-ui-docs
+npm install
+```
+
+### Build Core Library
+
+```bash
+cd smart-ui
+npm run build
+```
+
+### Start Documentation Development Server
+
+```bash
+cd smart-ui-docs
+npm run docs:dev
+```
+
+### Build Documentation
+
+```bash
+cd smart-ui-docs
+npm run docs:build
+```
+
+## 📚 Documentation
+
+- [Online Documentation](http://localhost:8080/) - Access after starting the local documentation server
+
+## 🤝 Contribution Guide
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
+
+## 📞 Contact
+
+If you have any questions or suggestions, please submit an [Issue](https://github.com/huaguanjun/smart-ui/issues) or [Pull Request](https://github.com/huaguanjun/smart-ui/pulls)
+
+</details>
+
 ---
 
-**Smart UI** - 让 UI 开发更简单、更高效！ 🚀
+**Smart UI** - Making UI development simpler and more efficient! 🚀

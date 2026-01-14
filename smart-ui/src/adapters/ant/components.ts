@@ -1,135 +1,227 @@
 import type { FieldConfig } from '../../core/types'
 
-// Ant Design Vue 组件映射配置
+/* ----------------------------- 工具函数 ----------------------------- */
+
+/** 安全合并 props（事件也是 props） */
+function mergeProps(
+  config: FieldConfig,
+  defaults: Record<string, any> = {}
+) {
+  const { typeProps = {} } = config
+
+  return {
+    ...defaults,
+    ...typeProps
+  }
+}
+
+/** 兼容不同命名方式（readOnly / readonly 等） */
+function pickFirst<T = any>(...args: T[]) {
+  return args.find(v => v !== undefined)
+}
+
+/* ----------------------- Ant Design Vue Map ------------------------- */
+
 export const antComponentsMap = {
   input: {
     component: 'a-input',
     props: (config: FieldConfig) => {
-      const { typeProps = {} } = config;
+      const base = mergeProps(config)
+
       return {
-        // 首先应用用户配置
-        ...typeProps,
-        // 然后基于用户配置进行兼容性处理
-        readOnly: typeProps.readOnly ?? typeProps.readonly ?? config.readOnly ?? config.readonly,
-        autoFocus: typeProps.autoFocus ?? typeProps.autofocus ?? config.autoFocus ?? config.autofocus,
-        maxLength: typeProps.maxLength ?? typeProps.maxlength ?? config.maxLength ?? config.maxlength,
-        allowClear: typeProps.allowClear ?? typeProps.clearable ?? config.allowClear ?? config.clearable,
-        // 基本属性处理
-        placeholder: typeProps.placeholder ?? config.placeholder,
-        disabled: typeProps.disabled ?? config.disabled
+        ...base,
+        readOnly: pickFirst(
+          base.readOnly,
+          base.readonly,
+          config.readOnly,
+          config.readonly
+        ),
+        autoFocus: pickFirst(
+          base.autoFocus,
+          base.autofocus,
+          config.autoFocus,
+          config.autofocus
+        ),
+        maxLength: pickFirst(
+          base.maxLength,
+          base.maxlength,
+          config.maxLength,
+          config.maxlength
+        ),
+        allowClear: pickFirst(
+          base.allowClear,
+          base.clearable,
+          config.allowClear,
+          config.clearable
+        ),
+        placeholder: pickFirst(base.placeholder, config.placeholder),
+        disabled: pickFirst(base.disabled, config.disabled)
       }
     }
   },
+
   select: {
     component: 'a-select',
-    props: (config: FieldConfig) =>{
-      const { typeProps = {} } = config;
+    props: (config: FieldConfig) => {
+      const base = mergeProps(config)
+
       return {
-        // 首先应用用户配置
-        ...typeProps,
-        // 然后基于用户配置进行兼容性处理
-        showSearch: typeProps.showSearch ?? typeProps.filterable ?? config.showSearch ?? config.filterable ?? false,
-        filterOption: typeProps.filterOption ?? typeProps.filterMethod ?? config.filterOption ?? config.filterMethod,
-        dropdownClassName: typeProps.dropdownClassName ?? typeProps.popperClass ?? config.dropdownClassName ?? config.popperClass,
-        notFoundContent: typeProps.notFoundContent ?? typeProps.noMatchText ?? config.notFoundContent ?? config.noMatchText ?? '无匹配数据',
-        maxTagCount: typeProps.maxTagCount ?? typeProps.collapseTags ?? config.maxTagCount ?? config.collapseTags,
-        allowClear: typeProps.allowClear ?? typeProps.clearable ?? config.allowClear ?? config.clearable ?? false,
-        // 基本属性处理
-        disabled: typeProps.disabled ?? config.disabled,
-        placeholder: typeProps.placeholder ?? config.placeholder,
-        mode: typeProps.mode ?? config.mode,
-        size: typeProps.size ?? config.size,
-        loading: typeProps.loading ?? config.loading ?? false
+        ...base,
+        showSearch: pickFirst(
+          base.showSearch,
+          base.filterable,
+          config.showSearch,
+          config.filterable,
+          false
+        ),
+        filterOption: pickFirst(
+          base.filterOption,
+          base.filterMethod,
+          config.filterOption,
+          config.filterMethod
+        ),
+        dropdownClassName: pickFirst(
+          base.dropdownClassName,
+          base.popperClass,
+          config.dropdownClassName,
+          config.popperClass
+        ),
+        notFoundContent: pickFirst(
+          base.notFoundContent,
+          base.noMatchText,
+          config.notFoundContent,
+          config.noMatchText,
+          '无匹配数据'
+        ),
+        maxTagCount: pickFirst(
+          base.maxTagCount,
+          base.collapseTags,
+          config.maxTagCount,
+          config.collapseTags
+        ),
+        allowClear: pickFirst(
+          base.allowClear,
+          base.clearable,
+          config.allowClear,
+          config.clearable,
+          false
+        ),
+        disabled: pickFirst(base.disabled, config.disabled),
+        placeholder: pickFirst(base.placeholder, config.placeholder),
+        mode: pickFirst(base.mode, config.mode),
+        size: pickFirst(base.size, config.size),
+        loading: pickFirst(base.loading, config.loading, false)
       }
     },
     optionsComponent: 'a-select-option',
     optionProps: (option: any) => ({
       value: option.value,
-      ...option.props
+      ...(option.props || {})
     })
   },
+
   radio: {
     component: 'a-radio-group',
     optionsComponent: 'a-radio',
     optionProps: (option: any) => ({
       value: option.value,
-      ...option.props
+      ...(option.props || {})
     })
   },
+
   checkbox: {
     component: 'a-checkbox-group',
     optionsComponent: 'a-checkbox',
     optionProps: (option: any) => ({
       value: option.value,
-      ...option.props
+      ...(option.props || {})
     })
   },
+
   date: {
     component: 'a-date-picker',
     props: (config: FieldConfig) => {
-      const { typeProps = {} } = config;
+      const base = mergeProps(config)
+
       return {
-        // 首先应用用户配置
-        ...typeProps,
-        // 然后基于用户配置进行兼容性处理
-        picker: typeProps.picker ?? typeProps.dateType ?? config.dateType ?? 'date',
-        // 基本属性处理
-        placeholder: typeProps.placeholder ?? config.placeholder,
-        disabled: typeProps.disabled ?? config.disabled,
-        format: typeProps.format ?? config.format ?? 'YYYY-MM-DD'
+        ...base,
+        picker: pickFirst(
+          base.picker,
+          base.dateType,
+          config.dateType,
+          'date'
+        ),
+        placeholder: pickFirst(base.placeholder, config.placeholder),
+        disabled: pickFirst(base.disabled, config.disabled),
+        format: pickFirst(base.format, config.format, 'YYYY-MM-DD')
       }
     }
   },
+
   textarea: {
     component: 'a-textarea',
     props: (config: FieldConfig) => {
-      const { typeProps = {} } = config;
+      const base = mergeProps(config)
+
       return {
-        // 首先应用用户配置
-        ...typeProps,
-        // 然后基于用户配置进行兼容性处理
-        readOnly: typeProps.readOnly ?? typeProps.readonly ?? config.readOnly ?? config.readonly,
-        // 基本属性处理
-        placeholder: typeProps.placeholder ?? config.placeholder,
-        disabled: typeProps.disabled ?? config.disabled,
-        rows: typeProps.rows ?? config.rows ?? 3
+        ...base,
+        readOnly: pickFirst(
+          base.readOnly,
+          base.readonly,
+          config.readOnly,
+          config.readonly
+        ),
+        placeholder: pickFirst(base.placeholder, config.placeholder),
+        disabled: pickFirst(base.disabled, config.disabled),
+        rows: pickFirst(base.rows, config.rows, 3)
       }
     }
   },
+
   switch: {
     component: 'a-switch',
     props: (config: FieldConfig) => {
-      const { typeProps = {} } = config;
+      const base = mergeProps(config)
+
       return {
-        // 首先应用用户配置
-        ...typeProps,
-        // 然后基于用户配置进行兼容性处理
-        checkedChildren: typeProps.checkedChildren ?? typeProps.activeText ?? config.activeText,
-        unCheckedChildren: typeProps.unCheckedChildren ?? typeProps.inactiveText ?? config.inactiveText,
-        // 基本属性处理
-        disabled: typeProps.disabled ?? config.disabled
+        ...base,
+        checkedChildren: pickFirst(
+          base.checkedChildren,
+          base.activeText,
+          config.activeText
+        ),
+        unCheckedChildren: pickFirst(
+          base.unCheckedChildren,
+          base.inactiveText,
+          config.inactiveText
+        ),
+        disabled: pickFirst(base.disabled, config.disabled)
       }
     }
   },
+
   slider: {
     component: 'a-slider',
     props: (config: FieldConfig) => {
-      const { typeProps = {} } = config;
+      const base = mergeProps(config)
+
       return {
-        // 首先应用用户配置
-        ...typeProps,
-        // 基本属性处理
-        disabled: typeProps.disabled ?? config.disabled,
-        min: typeProps.min ?? config.min ?? 0,
-        max: typeProps.max ?? config.max ?? 100,
-        step: typeProps.step ?? config.step ?? 1,
-        showInput: typeProps.showInput ?? config.showInput ?? false
+        ...base,
+        disabled: pickFirst(base.disabled, config.disabled),
+        min: pickFirst(base.min, config.min, 0),
+        max: pickFirst(base.max, config.max, 100),
+        step: pickFirst(base.step, config.step, 1),
+        showInput: pickFirst(base.showInput, config.showInput, false)
       }
     }
   }
 } as const
 
-// 获取 Ant Design Vue 组件配置
+/* ------------------------- 对外获取方法 -------------------------- */
+
 export function getAntComponentConfig(type: FieldConfig['type']) {
-  return antComponentsMap[type as keyof typeof antComponentsMap] || antComponentsMap.input
+  return (
+    antComponentsMap[type as keyof typeof antComponentsMap] ||
+    antComponentsMap.input
+  )
 }

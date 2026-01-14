@@ -126,6 +126,9 @@ const fields = ref([
     typeProps: {
       allowClear: true,
       placeholder: '请选择部门',
+      onChange: (value: any) => {
+        console.log('部门选择变化:', value)
+      }
     },
     rules: rules.value.department,
     options: [] // 初始为空，后续异步加载
