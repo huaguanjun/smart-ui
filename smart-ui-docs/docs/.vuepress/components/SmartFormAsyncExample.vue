@@ -195,6 +195,7 @@ const fields = ref([
     type: 'date',
     span: 12,
     typeProps: {
+      style: { width: '100%' },
       placeholder: '请选择出生日期',
       onChange: (value: Date) => console.log('出生日期变化:', value)
     }
@@ -205,6 +206,7 @@ const fields = ref([
     type: 'time',
     span: 12,
     typeProps: {
+      style: { width: '100%' },
       placeholder: '请选择出生时间',
       onChange: (value: any) => console.log('出生时间变化:', value)
     }
@@ -216,6 +218,7 @@ const fields = ref([
     defaultValue: 18,
     span: 12,
     typeProps: {
+      style: { width: '100%' },
       min: 18,
       max: 100,
       onChange: (value: number) => console.log('年龄变化:', value)
