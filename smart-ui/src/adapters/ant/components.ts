@@ -60,6 +60,26 @@ export const antComponentsMap = {
     }
   },
 
+  textarea: {
+    component: 'a-textarea',
+    props: (config: FieldConfig) => {
+      const base = mergeProps(config)
+
+      return {
+        ...base,
+        readOnly: pickFirst(
+          base.readOnly,
+          base.readonly,
+          config.readOnly,
+          config.readonly
+        ),
+        placeholder: pickFirst(base.placeholder, config.placeholder),
+        disabled: pickFirst(base.disabled, config.disabled),
+        rows: pickFirst(base.rows, config.rows, 3)
+      }
+    }
+  },
+
   select: {
     component: 'a-select',
     props: (config: FieldConfig) => {
@@ -120,6 +140,40 @@ export const antComponentsMap = {
     })
   },
 
+  'select-v2': {
+    component: 'a-select',
+    props: (config: FieldConfig) => {
+      const base = mergeProps(config)
+
+      return {
+        ...base,
+        showSearch: pickFirst(
+          base.showSearch,
+          base.filterable,
+          config.showSearch,
+          config.filterable,
+          false
+        ),
+        allowClear: pickFirst(
+          base.allowClear,
+          base.clearable,
+          config.allowClear,
+          config.clearable,
+          false
+        ),
+        disabled: pickFirst(base.disabled, config.disabled),
+        placeholder: pickFirst(base.placeholder, config.placeholder),
+        mode: pickFirst(base.mode, config.mode),
+        size: pickFirst(base.size, config.size)
+      }
+    },
+    optionsComponent: 'a-select-option',
+    optionProps: (option: any) => ({
+      value: option.value,
+      ...(option.props || {})
+    })
+  },
+
   radio: {
     component: 'a-radio-group',
     optionsComponent: 'a-radio',
@@ -158,22 +212,16 @@ export const antComponentsMap = {
     }
   },
 
-  textarea: {
-    component: 'a-textarea',
+  time: {
+    component: 'a-time-picker',
     props: (config: FieldConfig) => {
       const base = mergeProps(config)
 
       return {
         ...base,
-        readOnly: pickFirst(
-          base.readOnly,
-          base.readonly,
-          config.readOnly,
-          config.readonly
-        ),
         placeholder: pickFirst(base.placeholder, config.placeholder),
         disabled: pickFirst(base.disabled, config.disabled),
-        rows: pickFirst(base.rows, config.rows, 3)
+        format: pickFirst(base.format, config.format, 'HH:mm:ss')
       }
     }
   },
@@ -212,6 +260,149 @@ export const antComponentsMap = {
         max: pickFirst(base.max, config.max, 100),
         step: pickFirst(base.step, config.step, 1),
         showInput: pickFirst(base.showInput, config.showInput, false)
+      }
+    }
+  },
+
+  mention: {
+    component: 'a-mentions',
+    props: (config: FieldConfig) => {
+      const base = mergeProps(config)
+
+      return {
+        ...base,
+        placeholder: pickFirst(base.placeholder, config.placeholder),
+        disabled: pickFirst(base.disabled, config.disabled)
+      }
+    }
+  },
+
+  'input-number': {
+    component: 'a-input-number',
+    props: (config: FieldConfig) => {
+      const base = mergeProps(config)
+
+      return {
+        ...base,
+        disabled: pickFirst(base.disabled, config.disabled),
+        min: pickFirst(base.min, config.min, 0),
+        max: pickFirst(base.max, config.max, 100),
+        step: pickFirst(base.step, config.step, 1)
+      }
+    }
+  },
+
+  cascader: {
+    component: 'a-cascader',
+    props: (config: FieldConfig) => {
+      const base = mergeProps(config)
+
+      return {
+        ...base,
+        disabled: pickFirst(base.disabled, config.disabled),
+        placeholder: pickFirst(base.placeholder, config.placeholder),
+        allowClear: pickFirst(
+          base.allowClear,
+          base.clearable,
+          config.allowClear,
+          config.clearable,
+          false
+        )
+      }
+    }
+  },
+
+  'tree-select': {
+    component: 'a-tree-select',
+    props: (config: FieldConfig) => {
+      const base = mergeProps(config)
+
+      return {
+        ...base,
+        disabled: pickFirst(base.disabled, config.disabled),
+        placeholder: pickFirst(base.placeholder, config.placeholder),
+        allowClear: pickFirst(
+          base.allowClear,
+          base.clearable,
+          config.allowClear,
+          config.clearable,
+          false
+        )
+      }
+    }
+  },
+
+  upload: {
+    component: 'a-upload',
+    props: (config: FieldConfig) => {
+      const base = mergeProps(config)
+
+      return {
+        ...base,
+        disabled: pickFirst(base.disabled, config.disabled)
+      }
+    }
+  },
+
+  rate: {
+    component: 'a-rate',
+    props: (config: FieldConfig) => {
+      const base = mergeProps(config)
+
+      return {
+        ...base,
+        disabled: pickFirst(base.disabled, config.disabled),
+        max: pickFirst(base.max, config.max, 5)
+      }
+    }
+  },
+
+  'color-picker': {
+    component: 'a-color-picker',
+    props: (config: FieldConfig) => {
+      const base = mergeProps(config)
+
+      return {
+        ...base,
+        disabled: pickFirst(base.disabled, config.disabled)
+      }
+    }
+  },
+
+  transfer: {
+    component: 'a-transfer',
+    props: (config: FieldConfig) => {
+      const base = mergeProps(config)
+
+      return {
+        ...base,
+        disabled: pickFirst(base.disabled, config.disabled)
+      }
+    }
+  },
+
+  autocomplete: {
+    component: 'a-auto-complete',
+    props: (config: FieldConfig) => {
+      const base = mergeProps(config)
+
+      return {
+        ...base,
+        readOnly: pickFirst(
+          base.readOnly,
+          base.readonly,
+          config.readOnly,
+          config.readonly
+        ),
+        placeholder: pickFirst(base.placeholder, config.placeholder),
+        disabled: pickFirst(base.disabled, config.disabled),
+        allowClear: pickFirst(
+          base.allowClear,
+          base.clearable,
+          config.allowClear,
+          config.clearable,
+          false
+        )
       }
     }
   }

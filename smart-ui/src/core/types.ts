@@ -5,7 +5,7 @@ export type SortOrder = 'ascending' | 'descending' | null
 
 export type AlignType = 'left' | 'center' | 'right'
 
-export type SizeType = 'small' | 'medium' | 'large'
+export type SizeType = 'small' | 'medium' | 'default' | 'large'
 
 // 表格列配置
 export interface TableColumnConfig {
@@ -136,7 +136,7 @@ export interface FieldConfig {
   // 字段标签
   label?: string
   // 字段类型
-  type: 'input' | 'select' | 'radio' | 'checkbox' | 'date' | 'textarea' | 'switch' | 'slider'
+  type: 'input' | 'textarea' | 'select' | 'select-v2' | 'radio' | 'checkbox' | 'date' | 'time' | 'switch' | 'slider' | 'mention' | 'input-number' | 'cascader' | 'tree-select' | 'upload' | 'rate' | 'color-picker' | 'transfer' | 'autocomplete'
   // 占位符
   placeholder?: string
   // 选项列表
@@ -149,6 +149,8 @@ export interface FieldConfig {
   readonly?: boolean
   // 默认值
   defaultValue?: any
+  // 组件原生属性配置，具有最高优先级
+  typeProps?: Record<string, any>
   // 其他自定义属性
   [key: string]: any
 }

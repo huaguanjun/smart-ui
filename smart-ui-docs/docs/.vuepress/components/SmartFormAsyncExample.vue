@@ -33,6 +33,9 @@
         @cancel="handleCancel"
         label-position="right"
         label-width="80px"
+        :inline="false"
+        :disabled="false"
+        :item-span="12"
       >
         <!-- 表单内容 -->
       </smart-form>
@@ -57,11 +60,18 @@ const adapter = ref<'element' | 'ant'>('element')
 
 // 表单数据
 const formData = ref({
-  username: '',
-  email: '',
-  password: '',
-  role: null,
-  department: null // 新增：异步获取选项的部门字段
+  username: '', // input 类型
+  bio: '', // textarea 类型
+  department: null, // select 类型（异步加载）
+  gender: 'male', // radio 类型
+  hobbies: ['reading', 'coding'], // checkbox 类型
+  birthdate: null, // date 类型
+  birthtime: null, // time 类型
+  age: 18, // input-number 类型
+  salary: 10000, // slider 类型
+  active: false, // switch 类型
+  rating: 3, // rate 类型
+  manager: '' // mention 类型
 })
 
 // 验证规则
@@ -70,13 +80,15 @@ const rules = ref({
     { required: true, message: '请输入用户名', trigger: 'blur' },
     { min: 3, max: 20, message: '长度在 3 到 20 个字符', trigger: 'blur' }
   ],
-  email: [
-    { required: true, message: '请输入邮箱', trigger: 'blur' },
-    { type: 'email', message: '请输入有效的邮箱地址', trigger: 'blur' }
+  bio: [
+    { required: true, message: '请输入个人简介', trigger: 'blur' },
+    { min: 10, message: '简介长度不能少于 10 个字符', trigger: 'blur' }
   ],
-  password: [
-    { required: true, message: '请输入密码', trigger: 'blur' },
-    { min: 6, message: '密码长度不能少于 6 个字符', trigger: 'blur' }
+  gender: [
+    { required: true, message: '请选择性别', trigger: 'change' }
+  ],
+  birthdate: [
+    { required: true, message: '请选择出生日期', trigger: 'change' }
   ],
   department: [
     { required: true, message: '请选择部门', trigger: 'change' }
@@ -89,49 +101,158 @@ const fields = ref([
     name: 'username',
     label: '用户名',
     type: 'input',
-    placeholder: '请输入用户名'
-  },
-  {
-    name: 'email',
-    label: '邮箱',
-    type: 'input',
-    placeholder: '请输入邮箱'
-  },
-  {
-    name: 'password',
-    label: '密码',
-    type: 'input',
-    placeholder: '请输入密码',
-    inputType: 'password'
-  },
-  {
-    name: 'role',
-    label: '角色',
-    type: 'select',
+    placeholder: '请输入用户名',
+    defaultValue: '',
+    readonly: false,
+    span: 12,
     typeProps: {
-      allowClear: true,
-      placeholder: '请选择角色',
-    },
-    options: [
-      { label: '管理员', value: 'admin' },
-      { label: '编辑', value: 'editor' },
-      { label: '作者', value: 'author' },
-      { label: '读者', value: 'reader' }
-    ]
+      onChange: (value: string) => console.log('用户名变化:', value),
+      onBlur: (value: string) => console.log('用户名失焦:', value),
+      clearable: true
+    }
+  },
+  {
+    name: 'bio',
+    label: '个人简介',
+    type: 'textarea',
+    placeholder: '请输入个人简介',
+    disabled: false,
+    span: 24,
+    typeProps: {
+      rows: 3,
+      onChange: (value: string) => console.log('简介变化:', value)
+    }
   },
   {
     name: 'department',
     label: '部门',
     type: 'select',
+    placeholder: '请选择部门',
+    span: 12,
     typeProps: {
       allowClear: true,
-      placeholder: '请选择部门',
-      onChange: (value: any) => {
-        console.log('部门选择变化:', value)
-      }
+      onChange: (value: string) => console.log('部门选择变化:', value)
     },
     rules: rules.value.department,
     options: [] // 初始为空，后续异步加载
+  },
+  {
+    name: 'gender',
+    label: '性别',
+    type: 'radio',
+    defaultValue: 'male',
+    span: 12,
+    options: [
+      { label: '男', value: 'male' },
+      { label: '女', value: 'female' },
+      { label: '其他', value: 'other' }
+    ],
+    typeProps: {
+      onChange: (value: string) => console.log('性别变化:', value)
+    }
+  },
+  {
+    name: 'hobbies',
+    label: '兴趣爱好',
+    type: 'checkbox',
+    defaultValue: ['reading', 'coding'],
+    span: 24,
+    options: [
+      { label: '阅读', value: 'reading' },
+      { label: '运动', value: 'sports' },
+      { label: '音乐', value: 'music' },
+      { label: '旅行', value: 'travel' },
+      { label: '编程', value: 'coding' }
+    ],
+    typeProps: {
+      onChange: (value: string[]) => console.log('兴趣爱好变化:', value)
+    }
+  },
+  {
+    name: 'birthdate',
+    label: '出生日期',
+    type: 'date',
+    span: 12,
+    typeProps: {
+      placeholder: '请选择出生日期',
+      onChange: (value: Date) => console.log('出生日期变化:', value)
+    }
+  },
+  {
+    name: 'birthtime',
+    label: '出生时间',
+    type: 'time',
+    span: 12,
+    typeProps: {
+      placeholder: '请选择出生时间',
+      onChange: (value: any) => console.log('出生时间变化:', value)
+    }
+  },
+  {
+    name: 'age',
+    label: '年龄',
+    type: 'input-number',
+    defaultValue: 18,
+    span: 12,
+    typeProps: {
+      min: 18,
+      max: 100,
+      onChange: (value: number) => console.log('年龄变化:', value)
+    }
+  },
+  {
+    name: 'salary',
+    label: '薪资范围',
+    type: 'slider',
+    defaultValue: 10000,
+    span: 24,
+    typeProps: {
+      min: 3000,
+      max: 50000,
+      step: 1000,
+      marks: {
+        3000: '3k',
+        10000: '10k',
+        20000: '20k',
+        50000: '50k'
+      },
+      onChange: (value: number) => console.log('薪资范围变化:', value)
+    }
+  },
+  {
+    name: 'active',
+    label: '是否激活',
+    type: 'switch',
+    defaultValue: false,
+    span: 12,
+    typeProps: {
+      onChange: (value: boolean) => console.log('激活状态变化:', value)
+    }
+  },
+  {
+    name: 'rating',
+    label: '评分',
+    type: 'rate',
+    defaultValue: 3,
+    span: 12,
+    typeProps: {
+      onChange: (value: number) => console.log('评分变化:', value)
+    }
+  },
+  {
+    name: 'manager',
+    label: '直属领导',
+    type: 'mention',
+    placeholder: '请输入领导姓名',
+    span: 12,
+    typeProps: {
+      onChange: (value: string) => console.log('领导选择变化:', value),
+      options: [
+        { value: '张三', label: '张三' },
+        { value: '李四', label: '李四' },
+        { value: '王五', label: '王五' }
+      ]
+    }
   }
 ])
 
@@ -186,10 +307,17 @@ const handleCancel = () => {
   // 重置表单数据
   formData.value = {
     username: '',
-    email: '',
-    password: '',
-    role: null,
-    department: null // 保留默认部门值
+    bio: '',
+    department: null,
+    gender: 'male',
+    hobbies: ['reading', 'coding'],
+    birthdate: null,
+    birthtime: null,
+    age: 18,
+    salary: 10000,
+    active: false,
+    rating: 3,
+    manager: ''
   }
 }
 </script>

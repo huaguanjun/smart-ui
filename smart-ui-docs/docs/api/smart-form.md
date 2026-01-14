@@ -113,19 +113,24 @@ const fields = [
 ```typescript
 type FieldType = 
   | 'input' 
+  | 'textarea' 
   | 'select' 
+  | 'select-v2' 
   | 'radio' 
   | 'checkbox' 
-  | 'date-picker' 
-  | 'textarea' 
+  | 'date' 
+  | 'time' 
   | 'switch' 
   | 'slider' 
-  | 'rate' 
-  | 'upload' 
-  | 'tree-select' 
+  | 'mention' 
+  | 'input-number' 
   | 'cascader' 
-  | 'time-picker' 
-  | 'divider';
+  | 'tree-select' 
+  | 'upload' 
+  | 'rate' 
+  | 'color-picker' 
+  | 'transfer' 
+  | 'autocomplete';
 ```
 
 ### RuleConfig 类型

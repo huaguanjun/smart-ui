@@ -1,5 +1,5 @@
-import { ref, computed, shallowRef } from 'vue'
-import type { SmartFormProps, FieldInstance, FormEngine } from './types'
+import { ref, computed } from 'vue'
+import type { SmartFormProps, FieldInstance, FormEngine, UIAdapter } from './types'
 import { resolveAdapter } from './common/utils'
 import { isElementUI, isAntDesignVue } from './common/adapter'
 
@@ -11,11 +11,7 @@ interface AntFormProps {
   inline?: boolean
   size?: string
   disabled?: boolean
-  labelCol?: {
-    style?: {
-      width?: string
-    }
-  }
+  labelCol?: { style?: { width?: string } }
   labelAlign?: 'left' | 'right' | 'top'
   [key: string]: any
 }
@@ -25,21 +21,18 @@ interface AntFormProps {
  */
 function convertToAntFormProps(props: SmartFormProps): AntFormProps {
   const antProps: AntFormProps = {
+    ...props,
     model: props.model,
     rules: props.rules,
     fields: props.fields,
     inline: props.inline,
     size: props.size,
-    disabled: props.disabled,
-    ...props
+    disabled: props.disabled
   }
-  
-  // 处理 labelWidth 转换为 labelCol
+
+  // labelWidth -> labelCol.style.width
   if (props.labelWidth) {
-    const width = typeof props.labelWidth === 'number' 
-      ? `${props.labelWidth}px` 
-      : props.labelWidth
-    
+    const width = typeof props.labelWidth === 'number' ? `${props.labelWidth}px` : props.labelWidth
     antProps.labelCol = {
       ...antProps.labelCol,
       style: {
@@ -48,22 +41,45 @@ function convertToAntFormProps(props: SmartFormProps): AntFormProps {
       }
     }
   }
-  
-  // 处理 labelPosition 转换为 labelAlign
+
+  // labelPosition -> labelAlign
   if (props.labelPosition) {
     antProps.labelAlign = props.labelPosition as 'left' | 'right' | 'top'
   }
-  
+
   return antProps
 }
 
+/**
+ * 转换 size 为当前适配器对应值
+ */
+function normalizeSize(adapter: UIAdapter, size?: SmartFormProps['sizeType']) {
+  if (!size) return size
+  if (isElementUI(adapter) && size === 'middle') return 'default'
+  if (isAntDesignVue(adapter) && size === 'default') return 'middle'
+  return size
+}
+
+/**
+ * useFormEngine - 表单引擎 Hook
+ */
 export function useFormEngine(props: SmartFormProps): FormEngine {
   const fields = ref<Map<string, FieldInstance>>(new Map())
-  
-  // 缓存适配器名称，避免重复计算
+
+  // 缓存适配器名称
   const adapterName = computed(() => resolveAdapter(props.adapter))
-  
-  // 缓存基础属性，减少对象创建
+
+  // 环境标识
+  const isDev = (() => {
+    try {
+      return (typeof process !== 'undefined' && process.env?.NODE_ENV === 'development') ||
+             (typeof import.meta !== 'undefined' && import.meta.env?.DEV)
+    } catch {
+      return false
+    }
+  })()
+
+  // 基础属性缓存
   const baseProps = computed(() => ({
     model: props.model,
     rules: props.rules,
@@ -73,32 +89,25 @@ export function useFormEngine(props: SmartFormProps): FormEngine {
     disabled: props.disabled
   }))
 
-  // 将 props 转换为适配不同 UI 库的表单属性
+  // formProps 根据不同 UI 适配器计算
   const formProps = computed(() => {
-    // 获取当前适配器
     const adapter = adapterName.value
-    
-    // 根据适配器类型转换属性
+    const size = normalizeSize(adapter, props.size)
+
     if (isElementUI(adapter)) {
-      // Element Plus 直接使用 labelWidth 和 labelPosition
       return {
         ...baseProps.value,
         labelWidth: props.labelWidth,
         labelPosition: props.labelPosition,
-        ...props
+        size
       }
-    } else if (isAntDesignVue(adapter)) {
-      // Ant Design Vue 使用转换函数
-      return convertToAntFormProps({
-        ...baseProps.value,
-        ...props
-      } as SmartFormProps)
     }
-    
-    return {
-      ...baseProps.value,
-      ...props
+
+    if (isAntDesignVue(adapter)) {
+      return convertToAntFormProps({ ...baseProps.value, ...props, size })
     }
+
+    return { ...baseProps.value, ...props, size }
   })
 
   // 注册字段
@@ -111,68 +120,40 @@ export function useFormEngine(props: SmartFormProps): FormEngine {
     fields.value.delete(name)
   }
 
+  // 通用验证方法
+  const runValidation = async (targetFields: FieldInstance[]): Promise<boolean> => {
+    const results = await Promise.all(
+      targetFields.map(async (field) => {
+        try {
+          const result = await field.validate()
+          return result === true
+        } catch (error) {
+          if (isDev) console.error(`Validation error on field "${field.name}":`, error)
+          return false
+        }
+      })
+    )
+    return results.every(Boolean)
+  }
+
   // 验证单个字段
   const validateField = async (name: string): Promise<boolean> => {
-    let isDev = false
-    try {
-      // @ts-ignore - 兼容不同环境
-      isDev = (typeof process !== 'undefined' && process.env?.NODE_ENV === 'development') ||
-              (typeof import.meta !== 'undefined' && import.meta.env?.DEV)
-    } catch {
-      // 忽略环境检查错误
-    }
-    
     const field = fields.value.get(name)
     if (!field) {
-      if (isDev) {
-        console.warn(`Field "${name}" not found`)
-      }
+      if (isDev) console.warn(`Field "${name}" not found`)
       return true
     }
-
-    try {
-      const result = await field.validate()
-      return result === true
-    } catch (error) {
-      if (isDev) {
-        console.error(`Validation failed for field "${name}":`, error)
-      }
-      return false
-    }
+    return runValidation([field])
   }
 
   // 验证整个表单
   const validateForm = async (): Promise<boolean> => {
-    let isDev = false
-    try {
-      // @ts-ignore - 兼容不同环境
-      isDev = (typeof process !== 'undefined' && process.env?.NODE_ENV === 'development') ||
-              (typeof import.meta !== 'undefined' && import.meta.env?.DEV)
-    } catch {
-      // 忽略环境检查错误
-    }
-    
-    const validationPromises = Array.from(fields.value.values()).map(async (field) => {
-      try {
-        const result = await field.validate()
-        return result === true
-      } catch (error) {
-        if (isDev) {
-          console.error(`Field validation error:`, error)
-        }
-        return false
-      }
-    })
-    
-    const validationResults = await Promise.all(validationPromises)
-    return validationResults.every(result => result === true)
+    return runValidation(Array.from(fields.value.values()))
   }
 
   // 重置表单
   const resetForm = () => {
-    fields.value.forEach(field => {
-      field.reset()
-    })
+    fields.value.forEach((field) => field.reset())
   }
 
   return {

@@ -117,26 +117,49 @@ type FieldType =
   | 'input'
   | 'textarea'
   | 'select'
+  | 'select-v2'
   | 'radio'
   | 'checkbox'
   | 'date'
+  | 'time'
   | 'switch'
   | 'slider'
+  | 'mention'
+  | 'input-number'
+  | 'cascader'
+  | 'tree-select'
+  | 'upload'
+  | 'rate'
+  | 'color-picker'
+  | 'transfer'
+  | 'autocomplete'
 
 // 从 components.ts 中使用组件映射
 const componentMap: Record<FieldType, string> = {
   input: elementComponentsMap.input.component,
   textarea: elementComponentsMap.textarea.component,
   select: elementComponentsMap.select.component,
+  'select-v2': elementComponentsMap['select-v2'].component,
   radio: elementComponentsMap.radio.component,
   checkbox: elementComponentsMap.checkbox.component,
   date: elementComponentsMap.date.component,
+  time: elementComponentsMap.time.component,
   switch: elementComponentsMap.switch.component,
   slider: elementComponentsMap.slider.component,
+  mention: elementComponentsMap.mention.component,
+  'input-number': elementComponentsMap['input-number'].component,
+  cascader: elementComponentsMap.cascader.component,
+  'tree-select': elementComponentsMap['tree-select'].component,
+  upload: elementComponentsMap.upload.component,
+  rate: elementComponentsMap.rate.component,
+  'color-picker': elementComponentsMap['color-picker'].component,
+  transfer: elementComponentsMap.transfer.component,
+  autocomplete: elementComponentsMap.autocomplete.component,
 }
 
 const componentChildrenMap: Partial<Record<FieldType, string>> = {
   select: elementComponentsMap.select.optionsComponent,
+  'select-v2': elementComponentsMap['select-v2'].optionsComponent,
   radio: elementComponentsMap.radio.optionsComponent,
   checkbox: elementComponentsMap.checkbox.optionsComponent,
 }
@@ -147,7 +170,7 @@ const componentChildrenMap: Partial<Record<FieldType, string>> = {
  * 判断字段是否需要 options
  */
 function hasOptions(type: FieldType): boolean {
-  return type === 'select' || type === 'radio' || type === 'checkbox'
+  return type === 'select' || type === 'select-v2' || type === 'radio' || type === 'checkbox'
 }
 
 /**

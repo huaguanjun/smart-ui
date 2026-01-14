@@ -64,6 +64,27 @@ export const elementComponentsMap = {
     }
   },
 
+  textarea: {
+    component: 'el-input',
+    props: (config: FieldConfig) => {
+      const base = mergeProps(config)
+
+      return {
+        ...base,
+        readonly: pickFirst(
+          base.readonly,
+          base.readOnly,
+          config.readonly,
+          config.readOnly
+        ),
+        placeholder: pickFirst(base.placeholder, config.placeholder),
+        disabled: pickFirst(base.disabled, config.disabled),
+        type: 'textarea',
+        rows: pickFirst(base.rows, config.rows, 3)
+      }
+    }
+  },
+
   select: {
     component: 'el-select',
     props: (config: FieldConfig) => {
@@ -134,6 +155,41 @@ export const elementComponentsMap = {
     })
   },
 
+  'select-v2': {
+    component: 'el-select-v2',
+    props: (config: FieldConfig) => {
+      const base = mergeProps(config)
+
+      return {
+        ...base,
+        disabled: pickFirst(base.disabled, config.disabled),
+        placeholder: pickFirst(base.placeholder, config.placeholder),
+        size: pickFirst(base.size, config.size),
+        multiple: pickFirst(base.multiple, config.multiple, false),
+        filterable: pickFirst(
+          base.filterable,
+          base.showSearch,
+          config.filterable,
+          config.showSearch,
+          false
+        ),
+        clearable: pickFirst(
+          base.clearable,
+          base.allowClear,
+          config.clearable,
+          config.allowClear,
+          false
+        )
+      }
+    },
+    optionsComponent: 'el-option',
+    optionProps: (option: any) => ({
+      label: option.label,
+      value: option.value,
+      ...(option.props || {})
+    })
+  },
+
   radio: {
     component: 'el-radio-group',
     optionsComponent: 'el-radio',
@@ -177,23 +233,21 @@ export const elementComponentsMap = {
     }
   },
 
-  textarea: {
-    component: 'el-input',
+  time: {
+    component: 'el-time-picker',
     props: (config: FieldConfig) => {
       const base = mergeProps(config)
 
       return {
         ...base,
-        readonly: pickFirst(
-          base.readonly,
-          base.readOnly,
-          config.readonly,
-          config.readOnly
-        ),
         placeholder: pickFirst(base.placeholder, config.placeholder),
         disabled: pickFirst(base.disabled, config.disabled),
-        type: 'textarea',
-        rows: pickFirst(base.rows, config.rows, 3)
+        format: pickFirst(base.format, config.format, 'HH:mm:ss'),
+        valueFormat: pickFirst(
+          base.valueFormat,
+          config.valueFormat,
+          'HH:mm:ss'
+        )
       }
     }
   },
@@ -232,6 +286,149 @@ export const elementComponentsMap = {
         max: pickFirst(base.max, config.max, 100),
         step: pickFirst(base.step, config.step, 1),
         showInput: pickFirst(base.showInput, config.showInput, false)
+      }
+    }
+  },
+
+  mention: {
+    component: 'el-mention',
+    props: (config: FieldConfig) => {
+      const base = mergeProps(config)
+
+      return {
+        ...base,
+        placeholder: pickFirst(base.placeholder, config.placeholder),
+        disabled: pickFirst(base.disabled, config.disabled)
+      }
+    }
+  },
+
+  'input-number': {
+    component: 'el-input-number',
+    props: (config: FieldConfig) => {
+      const base = mergeProps(config)
+
+      return {
+        ...base,
+        disabled: pickFirst(base.disabled, config.disabled),
+        min: pickFirst(base.min, config.min, 0),
+        max: pickFirst(base.max, config.max, 100),
+        step: pickFirst(base.step, config.step, 1)
+      }
+    }
+  },
+
+  cascader: {
+    component: 'el-cascader',
+    props: (config: FieldConfig) => {
+      const base = mergeProps(config)
+
+      return {
+        ...base,
+        disabled: pickFirst(base.disabled, config.disabled),
+        placeholder: pickFirst(base.placeholder, config.placeholder),
+        clearable: pickFirst(
+          base.clearable,
+          base.allowClear,
+          config.clearable,
+          config.allowClear,
+          false
+        )
+      }
+    }
+  },
+
+  'tree-select': {
+    component: 'el-tree-select',
+    props: (config: FieldConfig) => {
+      const base = mergeProps(config)
+
+      return {
+        ...base,
+        disabled: pickFirst(base.disabled, config.disabled),
+        placeholder: pickFirst(base.placeholder, config.placeholder),
+        clearable: pickFirst(
+          base.clearable,
+          base.allowClear,
+          config.clearable,
+          config.allowClear,
+          false
+        )
+      }
+    }
+  },
+
+  upload: {
+    component: 'el-upload',
+    props: (config: FieldConfig) => {
+      const base = mergeProps(config)
+
+      return {
+        ...base,
+        disabled: pickFirst(base.disabled, config.disabled)
+      }
+    }
+  },
+
+  rate: {
+    component: 'el-rate',
+    props: (config: FieldConfig) => {
+      const base = mergeProps(config)
+
+      return {
+        ...base,
+        disabled: pickFirst(base.disabled, config.disabled),
+        max: pickFirst(base.max, config.max, 5)
+      }
+    }
+  },
+
+  'color-picker': {
+    component: 'el-color-picker',
+    props: (config: FieldConfig) => {
+      const base = mergeProps(config)
+
+      return {
+        ...base,
+        disabled: pickFirst(base.disabled, config.disabled)
+      }
+    }
+  },
+
+  transfer: {
+    component: 'el-transfer',
+    props: (config: FieldConfig) => {
+      const base = mergeProps(config)
+
+      return {
+        ...base,
+        disabled: pickFirst(base.disabled, config.disabled)
+      }
+    }
+  },
+
+  autocomplete: {
+    component: 'el-autocomplete',
+    props: (config: FieldConfig) => {
+      const base = mergeProps(config)
+
+      return {
+        ...base,
+        readonly: pickFirst(
+          base.readonly,
+          base.readOnly,
+          config.readonly,
+          config.readOnly
+        ),
+        placeholder: pickFirst(base.placeholder, config.placeholder),
+        disabled: pickFirst(base.disabled, config.disabled),
+        clearable: pickFirst(
+          base.clearable,
+          base.allowClear,
+          config.clearable,
+          config.allowClear,
+          false
+        )
       }
     }
   }

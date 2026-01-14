@@ -129,26 +129,49 @@ type FieldType =
   | 'input'
   | 'textarea'
   | 'select'
+  | 'select-v2'
   | 'radio'
   | 'checkbox'
   | 'date'
+  | 'time'
   | 'switch'
   | 'slider'
+  | 'mention'
+  | 'input-number'
+  | 'cascader'
+  | 'tree-select'
+  | 'upload'
+  | 'rate'
+  | 'color-picker'
+  | 'transfer'
+  | 'autocomplete'
 
 // 从 components.ts 中使用组件映射
 const componentMap: Record<FieldType, string> = {
   input: antComponentsMap.input.component,
   textarea: antComponentsMap.textarea.component,
   select: antComponentsMap.select.component,
+  'select-v2': antComponentsMap['select-v2'].component,
   radio: antComponentsMap.radio.component,
   checkbox: antComponentsMap.checkbox.component,
   date: antComponentsMap.date.component,
+  time: antComponentsMap.time.component,
   switch: antComponentsMap.switch.component,
   slider: antComponentsMap.slider.component,
+  mention: antComponentsMap.mention.component,
+  'input-number': antComponentsMap['input-number'].component,
+  cascader: antComponentsMap.cascader.component,
+  'tree-select': antComponentsMap['tree-select'].component,
+  upload: antComponentsMap.upload.component,
+  rate: antComponentsMap.rate.component,
+  'color-picker': antComponentsMap['color-picker'].component,
+  transfer: antComponentsMap.transfer.component,
+  autocomplete: antComponentsMap.autocomplete.component,
 }
 
 const componentChildrenMap: Partial<Record<FieldType, string>> = {
   select: antComponentsMap.select.optionsComponent,
+  'select-v2': antComponentsMap['select-v2'].optionsComponent,
   radio: antComponentsMap.radio.optionsComponent,
   checkbox: antComponentsMap.checkbox.optionsComponent,
 }
@@ -159,7 +182,7 @@ const componentChildrenMap: Partial<Record<FieldType, string>> = {
  * 是否需要 options
  */
 function hasOptions(type: FieldType): boolean {
-  return type === 'select' || type === 'radio' || type === 'checkbox'
+  return type === 'select' || type === 'select-v2' || type === 'radio' || type === 'checkbox'
 }
 
 /**

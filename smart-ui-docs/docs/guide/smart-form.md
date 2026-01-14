@@ -137,7 +137,7 @@ const handleCancel = () => {
 |-------|------|------|-------|
 | name | `string` | 字段名 | - |
 | label | `string` | 字段标签 | - |
-| type | `'input'  'select'  'radio'  'checkbox'  'date'  'textarea'  'switch'  'slider'` | 字段类型 | - |
+| type | `'input'  'textarea'  'select'  'select-v2'  'radio'  'checkbox'  'date'  'time'  'switch'  'slider'  'mention'  'input-number'  'cascader'  'tree-select'  'upload'  'rate'  'color-picker'  'transfer'  'autocomplete'` | 字段类型 | - |
 | placeholder | `string` | 占位符 | - |
 | options | `Array<{ label: string, value: any }>` | 选项列表 | `[]` |
 | rules | `any[]` | 验证规则 | `[]` |
@@ -170,7 +170,10 @@ const fields = ref([
     typeProps: {
       placeholder: '请输入3-20个字符', // 会覆盖上面的 placeholder
       clearable: true, // 配置组件原生属性
-      size: 'large' // 配置组件尺寸
+      size: 'large', // 配置组件尺寸
+      // 事件配置也通过 typeProps 实现
+      onChange: (value) => console.log('用户名变化:', value),
+      onBlur: (value) => console.log('用户名失焦:', value)
     }
   }
 ])
@@ -185,7 +188,32 @@ const selectField = ref([
     typeProps: {
       allowClear: true, // antd 属性名
       clearable: true,  // element 属性名
+      placeholder: '请选择城市',
+      onChange: (value) => console.log('城市选择变化:', value),
       // 适配器会自动处理兼容性
+    }
+  }
+])
+
+// 其他组件类型示例
+const otherFields = ref([
+  { 
+    name: 'age', 
+    label: '年龄', 
+    type: 'input-number',
+    typeProps: {
+      min: 18,
+      max: 100,
+      onChange: (value) => console.log('年龄变化:', value)
+    }
+  },
+  { 
+    name: 'rating', 
+    label: '评分', 
+    type: 'rate',
+    typeProps: {
+      max: 5,
+      onChange: (value) => console.log('评分变化:', value)
     }
   }
 ])
@@ -298,11 +326,23 @@ SmartForm 支持以下字段类型：
 - `input`：输入框
 - `textarea`：文本域
 - `select`：选择器
+- `select-v2`：增强版选择器
 - `radio`：单选框组
 - `checkbox`：复选框组
 - `date`：日期选择器
+- `time`：时间选择器
 - `switch`：开关
 - `slider`：滑块
+- `mention`：提及组件
+- `input-number`：数字输入框
+- `cascader`：级联选择器
+- `tree-select`：树形选择器
+- `upload`：上传组件
+- `rate`：评分组件
+- `color-picker`：颜色选择器
+- `transfer`：穿梭框
+- `autocomplete`：自动完成
+
 
 ## 示例
 
@@ -361,7 +401,7 @@ async function loadFormConfig() {
     // 4. 整合配置和数据
     const fieldsWithOptions = config.fields.map(field => {
       // 为需要选项的字段添加从服务端获取的options
-      if (['select', 'radio', 'checkbox'].includes(field.type) && optionsData[field.name]) {
+      if (['select', 'select-v2', 'radio', 'checkbox'].includes(field.type) && optionsData[field.name]) {
         return {
           ...field,
           options: optionsData[field.name]
