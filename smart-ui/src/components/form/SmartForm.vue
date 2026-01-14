@@ -4,8 +4,6 @@
     ref="formRef"
     :is="formComponent"
     v-bind="mergedFormProps"
-    @submit="handleSubmit"
-    @cancel="handleCancel"
   >
     <!-- 透传所有命名插槽 -->
     <template
@@ -39,17 +37,9 @@ const props = withDefaults(defineProps<SmartFormProps>(), {
   adapter: undefined,
   model: () => ({}),
   fields: () => [],
-  submitButton: () => ({ visible: true, text: '提交', type: 'primary' }),
-  cancelButton: () => ({ visible: true, text: '取消', type: 'default' })
 })
 
-/**
- * SmartForm Events
- */
-const emit = defineEmits<{
-  (e: 'submit', isValid: boolean, model: Record<string, any>): void
-  (e: 'cancel'): void
-}>()
+
 
 /**
  * 当前使用的适配器
@@ -86,19 +76,7 @@ const mergedFormProps = computed(() => ({
   cancelButton: props.cancelButton
 }))
 
-/**
- * 提交事件处理
- */
-const handleSubmit = (isValid: boolean) => {
-  emit('submit', isValid, props.model)
-}
 
-/**
- * 取消事件处理
- */
-const handleCancel = () => {
-  emit('cancel')
-}
 
 /**
  * 验证整个表单

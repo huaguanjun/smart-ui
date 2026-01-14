@@ -48,40 +48,11 @@
       </template>
 
       <!-- 自定义内容 -->
+    <a-col :span="24">
       <slot />
-    </a-row>
-    
-    <!-- 表单操作按钮 -->
-    <a-row style="margin-top: 20px;">
-      <a-col :span="24" style="text-align: right;">
-        <!-- 取消按钮 -->
-        <a-button
-          v-if="cancelButton.visible !== false"
-          :type="cancelButton.type ?? 'default'"
-          :size="cancelButton.size"
-          :style="cancelButton.style"
-          :class="cancelButton.class"
-          @click="handleCancel"
-          v-bind="cancelButton"
-        >
-          {{ cancelButton.title ?? '取消' }}
-        </a-button>
-        
-        <!-- 提交按钮 -->
-        <a-button
-          v-if="submitButton.visible !== false"
-          :type="submitButton.type ?? 'primary'"
-          :size="submitButton.size"
-          :style="{ ...submitButton.style, marginLeft: '10px' }"
-          :class="submitButton.class"
-          @click="handleSubmit"
-          v-bind="submitButton"
-        >
-          {{ submitButton.title ?? '提交' }}
-        </a-button>
-      </a-col>
-    </a-row>
-  </a-form>
+    </a-col>
+  </a-row>
+</a-form>
 </template>
 
 <script setup lang="ts">
@@ -101,14 +72,7 @@ const props = defineProps<{
   [key: string]: any
 }>()
 
-const { model, fields, rules, itemSpan, submitButton = {}, cancelButton = {} } = props
-
-/* ---------------------------- emit events ---------------------------- */
-
-const emit = defineEmits<{
-  (e: 'submit', isValid: boolean, model: Record<string, any>): void
-  (e: 'cancel'): void
-}>()
+const { model, fields, rules, itemSpan } = props
 
 /* ---------------------------- form ref ----------------------------- */
 
@@ -211,30 +175,6 @@ function getComponentProps(field: FieldConfig) {
 }
 
 /* ------------------------ 表单操作 ------------------------ */
-
-/**
- * 处理表单提交
- */
-async function handleSubmit() {
-  if (!formRef.value) return
-  
-  try {
-    await formRef.value.validateFields()
-    emit('submit', true, model)
-  } catch (error) {
-    emit('submit', false, model)
-  }
-}
-
-/**
- * 处理表单取消
- */
-function handleCancel() {
-  if (formRef.value) {
-    formRef.value.resetFields()
-  }
-  emit('cancel')
-}
 
 /**
  * 暴露表单实例方法

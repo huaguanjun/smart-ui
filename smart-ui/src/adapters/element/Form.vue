@@ -21,9 +21,7 @@
                 v-bind="getComponentProps(field)"
               >
                 <!-- select / radio / checkbox 子节点 -->
-                <template
-                  v-if="hasOptions(field.type)"
-                >
+                <template v-if="hasOptions(field.type)">
                   <component
                     v-for="option in field.options ?? []"
                     :key="option.value"
@@ -40,67 +38,35 @@
       </template>
 
       <!-- 自定义内容 -->
-      <slot />
-    </el-row>
-    
-    <!-- 表单操作按钮 -->
-    <el-row :gutter="20" style="margin-top: 20px;">
-      <el-col :span="24" style="text-align: right;">
-        <!-- 取消按钮 -->
-        <el-button
-          v-if="cancelButton.visible !== false"
-          :style="cancelButton.style"
-          :class="cancelButton.class"
-          @click="handleCancel"
-          v-bind="cancelButton"
-        >
-          {{ cancelButton.title ?? '取消' }}
-        </el-button>
-        
-        <!-- 提交按钮 -->
-        <el-button
-          v-if="submitButton.visible !== false"
-          :style="{ ...submitButton.style, marginLeft: '10px' }"
-          :class="submitButton.class"
-          @click="handleSubmit"
-          v-bind="submitButton"
-        >
-          {{ submitButton.title ?? '提交' }}
-        </el-button>
+      <el-col>
+        <slot />
       </el-col>
     </el-row>
   </el-form>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import type { FieldConfig, ButtonConfig } from '../../core/types'
-import { elementComponentsMap } from './components'
+import { computed, ref } from "vue";
+import type { FieldConfig, ButtonConfig } from "../../core/types";
+import { elementComponentsMap } from "./components";
 
 /* -------------------------------- props -------------------------------- */
 
 const props = defineProps<{
-  model: Record<string, any>
-  fields?: FieldConfig[]
-  rules?: Record<string, any[]>
-  itemSpan?: number
-  submitButton?: ButtonConfig
-  cancelButton?: ButtonConfig
-  [key: string]: any
-}>()
+  model: Record<string, any>;
+  fields?: FieldConfig[];
+  rules?: Record<string, any[]>;
+  itemSpan?: number;
+  submitButton?: ButtonConfig;
+  cancelButton?: ButtonConfig;
+  [key: string]: any;
+}>();
 
-const { model, fields, rules, itemSpan, submitButton = {}, cancelButton = {} } = props
-
-/* ---------------------------- emit events ---------------------------- */
-
-const emit = defineEmits<{
-  (e: 'submit', isValid: boolean, model: Record<string, any>): void
-  (e: 'cancel'): void
-}>()
+const { model, fields, rules, itemSpan } = props;
 
 /* ---------------------------- form ref ----------------------------- */
 
-const formRef = ref<any>(null)
+const formRef = ref<any>(null);
 
 /* ---------------------------- el-form props ----------------------------- */
 
@@ -108,38 +74,38 @@ const formProps = computed(() => ({
   ...props,
   model,
   rules,
-  itemSpan
-}))
+  itemSpan,
+}));
 
 /* -------------------------- 组件映射定义 -------------------------- */
 
 type FieldType =
-  | 'input'
-  | 'textarea'
-  | 'select'
-  | 'select-v2'
-  | 'radio'
-  | 'checkbox'
-  | 'date'
-  | 'time'
-  | 'switch'
-  | 'slider'
-  | 'mention'
-  | 'input-number'
-  | 'cascader'
-  | 'tree-select'
-  | 'upload'
-  | 'rate'
-  | 'color-picker'
-  | 'transfer'
-  | 'autocomplete'
+  | "input"
+  | "textarea"
+  | "select"
+  | "select-v2"
+  | "radio"
+  | "checkbox"
+  | "date"
+  | "time"
+  | "switch"
+  | "slider"
+  | "mention"
+  | "input-number"
+  | "cascader"
+  | "tree-select"
+  | "upload"
+  | "rate"
+  | "color-picker"
+  | "transfer"
+  | "autocomplete";
 
 // 从 components.ts 中使用组件映射
 const componentMap: Record<FieldType, string> = {
   input: elementComponentsMap.input.component,
   textarea: elementComponentsMap.textarea.component,
   select: elementComponentsMap.select.component,
-  'select-v2': elementComponentsMap['select-v2'].component,
+  "select-v2": elementComponentsMap["select-v2"].component,
   radio: elementComponentsMap.radio.component,
   checkbox: elementComponentsMap.checkbox.component,
   date: elementComponentsMap.date.component,
@@ -147,22 +113,22 @@ const componentMap: Record<FieldType, string> = {
   switch: elementComponentsMap.switch.component,
   slider: elementComponentsMap.slider.component,
   mention: elementComponentsMap.mention.component,
-  'input-number': elementComponentsMap['input-number'].component,
+  "input-number": elementComponentsMap["input-number"].component,
   cascader: elementComponentsMap.cascader.component,
-  'tree-select': elementComponentsMap['tree-select'].component,
+  "tree-select": elementComponentsMap["tree-select"].component,
   upload: elementComponentsMap.upload.component,
   rate: elementComponentsMap.rate.component,
-  'color-picker': elementComponentsMap['color-picker'].component,
+  "color-picker": elementComponentsMap["color-picker"].component,
   transfer: elementComponentsMap.transfer.component,
   autocomplete: elementComponentsMap.autocomplete.component,
-}
+};
 
 const componentChildrenMap: Partial<Record<FieldType, string>> = {
   select: elementComponentsMap.select.optionsComponent,
-  'select-v2': elementComponentsMap['select-v2'].optionsComponent,
+  "select-v2": elementComponentsMap["select-v2"].optionsComponent,
   radio: elementComponentsMap.radio.optionsComponent,
   checkbox: elementComponentsMap.checkbox.optionsComponent,
-}
+};
 
 /* ------------------------ 工具函数（关键） ------------------------ */
 
@@ -170,7 +136,12 @@ const componentChildrenMap: Partial<Record<FieldType, string>> = {
  * 判断字段是否需要 options
  */
 function hasOptions(type: FieldType): boolean {
-  return type === 'select' || type === 'select-v2' || type === 'radio' || type === 'checkbox'
+  return (
+    type === "select" ||
+    type === "select-v2" ||
+    type === "radio" ||
+    type === "checkbox"
+  );
 }
 
 /**
@@ -179,62 +150,37 @@ function hasOptions(type: FieldType): boolean {
  * 使用 components.ts 中定义的 props 函数
  */
 function getComponentProps(field: FieldConfig) {
-  const config = elementComponentsMap[field.type as keyof typeof elementComponentsMap]
-  if (config && typeof (config as any).props === 'function') {
-    return typeof (config as any).props === 'function' ? (config as any).props(field) : {}
+  const config =
+    elementComponentsMap[field.type as keyof typeof elementComponentsMap];
+  if (config && typeof (config as any).props === "function") {
+    return typeof (config as any).props === "function"
+      ? (config as any).props(field)
+      : {};
   }
-  
+
   // 回退逻辑
-  const {
-    name,
-    label,
-    rules,
-    span,
-    options,
-    type,
-    ...rest
-  } = field
+  const { name, label, rules, span, options, type, ...rest } = field;
 
   return {
     ...rest,
-    ...(type === 'textarea' ? { type: 'textarea' } : {}),
-  }
+    ...(type === "textarea" ? { type: "textarea" } : {}),
+  };
 }
 
 /* ------------------------ 表单操作 ------------------------ */
 
 /**
- * 处理表单提交
- */
-async function handleSubmit() {
-  if (!formRef.value) return
-  
-  try {
-    await formRef.value.validate()
-    emit('submit', true, model)
-  } catch (error) {
-    emit('submit', false, model)
-  }
-}
-
-/**
- * 处理表单取消
- */
-function handleCancel() {
-  if (formRef.value) {
-    formRef.value.resetFields()
-  }
-  emit('cancel')
-}
-
-/**
  * 暴露表单实例方法
  */
 defineExpose({
-  validate: (callback?: (valid: boolean) => void) => formRef.value?.validate(callback),
-  validateField: (prop: string | string[], callback?: (valid: boolean) => void) => formRef.value?.validateField(prop, callback),
-  resetFields: () => formRef.value?.resetFields()
-})
+  validate: (callback?: (valid: boolean) => void) =>
+    formRef.value?.validate(callback),
+  validateField: (
+    prop: string | string[],
+    callback?: (valid: boolean) => void
+  ) => formRef.value?.validateField(prop, callback),
+  resetFields: () => formRef.value?.resetFields(),
+});
 </script>
 
 <style scoped>

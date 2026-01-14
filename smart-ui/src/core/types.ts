@@ -209,10 +209,6 @@ export interface SmartFormProps {
   disabled?: boolean
   // 通用的字段 span 值
   itemSpan?: number
-  // 提交按钮配置
-  submitButton?: ButtonConfig
-  // 取消按钮配置
-  cancelButton?: ButtonConfig
   // 其他自定义属性
   [key: string]: any
 }

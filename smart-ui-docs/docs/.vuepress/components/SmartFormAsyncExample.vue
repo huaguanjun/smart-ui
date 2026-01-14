@@ -7,12 +7,14 @@
       <label>UI 库：</label>
       <div class="switcher-buttons">
         <button 
+          type="button"
           :class="['switch-btn', { active: adapter === 'element' }]" 
           @click="adapter = 'element'"
         >
           Element Plus
         </button>
         <button 
+          type="button"
           :class="['switch-btn', { active: adapter === 'ant' }]" 
           @click="adapter = 'ant'"
         >
@@ -28,10 +30,6 @@
         :model="formData"
         :fields="fields"
         :rules="rules"
-        :submit-button="{ title: '提交', type: 'primary'}"
-        :cancel-button="{ title: '重置' }"
-        @submit="handleSubmit"
-        @cancel="handleCancel"
         label-position="right"
         label-width="80px"
         :inline="false"
@@ -39,26 +37,32 @@
         :item-span="12"
       >
         <!-- 表单内容 -->
-      </smart-form>
-      
-      <!-- 外部方法调用演示 -->
-      <div class="external-methods-demo">
-        <h4>外部方法调用演示</h4>
-        <div class="demo-buttons">
+        
+        <!-- 合并的表单操作区域 -->
+        <div class="form-primary-actions">
           <button 
-            class="demo-btn" 
-            @click="handleValidateForm"
+            type="button"
+            class="form-btn reset-btn" 
+            @click="handleReset"
           >
-            外部验证表单
+            重置
           </button>
           <button 
+            type="button"
+            class="form-btn submit-btn" 
+            @click="handleSubmit"
+          >
+            提交
+          </button>
+          <button 
+            type="button"
             class="demo-btn" 
             @click="handleValidateUsername"
           >
             单独验证用户名
           </button>
         </div>
-      </div>
+      </smart-form>
     </div>
     
     <!-- 表单提交结果 -->
@@ -315,47 +319,29 @@ onMounted(() => {
 })
 
 // 表单提交处理
-const handleSubmit = (isValid: boolean, model: Record<string, any>) => {
-  if (isValid) {
-    submitResult.value = JSON.stringify(model, null, 2)
-    console.log('表单提交:', model)
-  } else {
-    submitResult.value = '表单验证失败，请检查必填项！'
-  }
-}
-
-// 表单取消处理
-const handleCancel = () => {
-  submitResult.value = ''
-  console.log('表单取消')
-  // 重置表单数据
-  formData.value = {
-    username: '',
-    bio: '',
-    department: null,
-    gender: 'male',
-    hobbies: ['reading', 'coding'],
-    birthdate: null,
-    birthtime: null,
-    age: 18,
-    salary: 10000,
-    active: false,
-    rating: 3,
-    manager: ''
-  }
-}
-
-// 外部调用表单验证方法
-const handleValidateForm = async () => {
+const handleSubmit = async () => {
   if (smartFormRef.value) {
     try {
       const isValid = await smartFormRef.value.validateForm()
-      submitResult.value = isValid ? '表单验证通过！' : '表单验证失败，请检查必填项！'
-      console.log('外部调用表单验证结果:', isValid)
+      if (isValid) {
+        submitResult.value = JSON.stringify(formData.value, null, 2)
+        console.log('表单提交:', formData.value)
+      } else {
+        submitResult.value = '表单验证失败，请检查必填项！'
+      }
     } catch (error) {
       submitResult.value = '验证过程中发生错误'
-      console.error('外部调用表单验证失败:', error)
+      console.error('表单验证失败:', error)
     }
+  }
+}
+
+// 表单重置处理
+const handleReset = () => {
+  if (smartFormRef.value) {
+    smartFormRef.value.resetForm()
+    submitResult.value = ''
+    console.log('表单已重置')
   }
 }
 
@@ -514,5 +500,80 @@ const handleValidateUsername = async () => {
 
 .demo-btn:active {
   transform: translateY(0);
+}
+
+/* 主要操作按钮样式 */
+.form-primary-actions {
+  margin-top: 24px;
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* 通用按钮样式 */
+.form-btn, .demo-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  outline: none;
+  min-width: 90px;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 重置按钮样式 */
+.reset-btn {
+  background: #6c757d;
+  color: white;
+}
+
+.reset-btn:hover {
+  background: #5a6268;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+}
+
+/* 提交按钮样式 */
+.submit-btn {
+  background: #007bff;
+  color: white;
+}
+
+.submit-btn:hover {
+  background: #0056b3;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+/* 演示按钮样式 */
+.demo-btn {
+  background: #28a745;
+  color: white;
+  min-width: 120px;
+}
+
+.demo-btn:hover {
+  background: #218838;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+}
+
+/* 按钮点击效果 */
+.form-btn:active, .demo-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* 演示按钮容器 */
+.demo-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+  flex-wrap: wrap;
 }
 </style>
