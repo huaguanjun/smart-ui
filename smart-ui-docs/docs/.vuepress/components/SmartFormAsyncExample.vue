@@ -201,7 +201,14 @@ const fields = ref([
     typeProps: {
       style: { width: '100%' },
       placeholder: '请选择出生日期',
-      onChange: (value: Date) => console.log('出生日期变化:', value)
+      onChange: (value: Date) => {
+        const birthtimeField = fields.value.find((field: any) => field.name === 'birthtime')
+        if(value && birthtimeField) {
+          birthtimeField.typeProps.disabled = false
+        } else if (!value && birthtimeField) {
+          birthtimeField.typeProps.disabled = true
+        }
+      }
     }
   },
   {
@@ -210,6 +217,7 @@ const fields = ref([
     type: 'time',
     span: 12,
     typeProps: {
+      disabled: true,
       style: { width: '100%' },
       placeholder: '请选择出生时间',
       onChange: (value: any) => console.log('出生时间变化:', value)
