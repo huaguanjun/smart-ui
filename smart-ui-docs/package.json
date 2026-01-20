@@ -37,6 +37,6 @@
   "author": "",
   "license": "ISC",
   "volta": {
-    "node": "22.21.1"
+    "node": "22.22.0"
   }
 }
