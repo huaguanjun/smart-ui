@@ -16,16 +16,16 @@
             <slot :name="field.name" :field="field" :model="model">
               <!-- 动态组件 -->
               <component
-                :is="componentMap[field.type]"
+                :is="componentMap[field.type as FieldType]"
                 v-model="model[field.name]"
                 v-bind="getComponentProps(field)"
               >
                 <!-- select / radio / checkbox 子节点 -->
-                <template v-if="hasOptions(field.type)">
+                <template v-if="hasOptions(field.type as FieldType)">
                   <component
                     v-for="option in field.options ?? []"
                     :key="option.value"
-                    :is="componentChildrenMap[field.type]"
+                    :is="componentChildrenMap[field.type as FieldType]"
                     :label="option.label"
                     :value="option.value"
                     :popper-append-to-body="false"
@@ -47,20 +47,19 @@
 
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import type { FieldConfig, ButtonConfig } from "../../core/types";
-import { elementComponentsMap } from "./components";
+import { 
+  FieldType, 
+  componentMap, 
+  componentChildrenMap, 
+  hasOptions, 
+  getComponentProps 
+} from "./utils";
 
 /* -------------------------------- props -------------------------------- */
 
-const props = defineProps<{
-  model: Record<string, any>;
-  fields?: FieldConfig[];
-  rules?: Record<string, any[]>;
-  itemSpan?: number;
-  submitButton?: ButtonConfig;
-  cancelButton?: ButtonConfig;
-  [key: string]: any;
-}>();
+import type { SmartFormProps } from "../../core/types";
+
+const props = defineProps<SmartFormProps>();
 
 const { model, fields, rules, itemSpan } = props;
 
@@ -76,96 +75,6 @@ const formProps = computed(() => ({
   rules,
   itemSpan,
 }));
-
-/* -------------------------- 组件映射定义 -------------------------- */
-
-type FieldType =
-  | "input"
-  | "textarea"
-  | "select"
-  | "select-v2"
-  | "radio"
-  | "checkbox"
-  | "date"
-  | "time"
-  | "switch"
-  | "slider"
-  | "mention"
-  | "input-number"
-  | "cascader"
-  | "tree-select"
-  | "upload"
-  | "rate"
-  | "color-picker"
-  | "transfer"
-  | "autocomplete";
-
-// 从 components.ts 中使用组件映射
-const componentMap: Record<FieldType, string> = {
-  input: elementComponentsMap.input.component,
-  textarea: elementComponentsMap.textarea.component,
-  select: elementComponentsMap.select.component,
-  "select-v2": elementComponentsMap["select-v2"].component,
-  radio: elementComponentsMap.radio.component,
-  checkbox: elementComponentsMap.checkbox.component,
-  date: elementComponentsMap.date.component,
-  time: elementComponentsMap.time.component,
-  switch: elementComponentsMap.switch.component,
-  slider: elementComponentsMap.slider.component,
-  mention: elementComponentsMap.mention.component,
-  "input-number": elementComponentsMap["input-number"].component,
-  cascader: elementComponentsMap.cascader.component,
-  "tree-select": elementComponentsMap["tree-select"].component,
-  upload: elementComponentsMap.upload.component,
-  rate: elementComponentsMap.rate.component,
-  "color-picker": elementComponentsMap["color-picker"].component,
-  transfer: elementComponentsMap.transfer.component,
-  autocomplete: elementComponentsMap.autocomplete.component,
-};
-
-const componentChildrenMap: Partial<Record<FieldType, string>> = {
-  select: elementComponentsMap.select.optionsComponent,
-  "select-v2": elementComponentsMap["select-v2"].optionsComponent,
-  radio: elementComponentsMap.radio.optionsComponent,
-  checkbox: elementComponentsMap.checkbox.optionsComponent,
-};
-
-/* ------------------------ 工具函数（关键） ------------------------ */
-
-/**
- * 判断字段是否需要 options
- */
-function hasOptions(type: FieldType): boolean {
-  return (
-    type === "select" ||
-    type === "select-v2" ||
-    type === "radio" ||
-    type === "checkbox"
-  );
-}
-
-/**
- * 提取真正传给组件的 props
- * ❗️避免 v-bind="field" 造成 type / name 等污染
- * 使用 components.ts 中定义的 props 函数
- */
-function getComponentProps(field: FieldConfig) {
-  const config =
-    elementComponentsMap[field.type as keyof typeof elementComponentsMap];
-  if (config && typeof (config as any).props === "function") {
-    return typeof (config as any).props === "function"
-      ? (config as any).props(field)
-      : {};
-  }
-
-  // 回退逻辑
-  const { name, label, rules, span, options, type, ...rest } = field;
-
-  return {
-    ...rest,
-    ...(type === "textarea" ? { type: "textarea" } : {}),
-  };
-}
 
 /* ------------------------ 表单操作 ------------------------ */
 

@@ -48,14 +48,39 @@ function convertToAntFormProps(props: SmartFormProps): AntFormProps {
     model: props.model,
     rules: props.rules,
     fields: props.fields,
-    inline: props.inline,
+    // 布局属性
+    layout: props.layout || (props.inline ? 'inline' : 'horizontal'),
+    // 标签相关属性
+    labelCol: props.labelCol,
+    wrapperCol: props.wrapperCol,
+    labelAlign: props.labelAlign || props.labelPosition,
+    labelWrap: props.labelWrap,
+    wrapperWrap: props.wrapperWrap,
+    colon: props.colon,
+    // 必填项相关属性
+    requiredMark: props.requiredMark,
+    // 验证相关属性
+    validateTrigger: props.validateTrigger,
+    validateFirst: props.validateFirst,
+    preserve: props.preserve,
+    validateOnRuleChange: props.validateOnRuleChange,
+    // 交互相关属性
+    autoFocusFirstField: props.autoFocusFirstField,
+    scrollToFirstError: props.scrollToError || props.scrollToFirstError,
+    // 尺寸属性
     size: props.size,
-    disabled: props.disabled
+    // 禁用状态
+    disabled: props.disabled,
+    // 表单名称
+    name: props.name,
+    // 表单初始值
+    initialValues: props.initialValues,
+    // 错误信息布局
+    messageCol: props.messageCol
   }
 
   // 处理 labelWidth 转换为 labelCol.style.width
-  // Element Plus 使用 labelWidth，Ant Design Vue 使用 labelCol.style.width
-  if (props.labelWidth) {
+  if (props.labelWidth && !antProps.labelCol?.style?.width) {
     const width = typeof props.labelWidth === 'number' ? `${props.labelWidth}px` : props.labelWidth
     antProps.labelCol = {
       ...antProps.labelCol,
@@ -64,12 +89,6 @@ function convertToAntFormProps(props: SmartFormProps): AntFormProps {
         width
       }
     }
-  }
-
-  // 处理 labelPosition 转换为 labelAlign
-  // Element Plus 使用 labelPosition，Ant Design Vue 使用 labelAlign
-  if (props.labelPosition) {
-    antProps.labelAlign = props.labelPosition as 'left' | 'right' | 'top'
   }
 
   return antProps
@@ -108,6 +127,7 @@ function normalizeSize(adapter: UIAdapter, size?: SmartFormProps['sizeType']) {
  * @returns 表单引擎实例
  */
 export function useFormEngine(props: SmartFormProps): FormEngine {
+   console.log('useFormEngine props:', props)
   // 存储已注册的字段实例
   const fields = ref<Map<string, FieldInstance>>(new Map())
 
@@ -147,6 +167,7 @@ export function useFormEngine(props: SmartFormProps): FormEngine {
     // Element Plus 直接返回原生属性
     if (isElementUI(adapter)) {
       return {
+        ...props,
         ...baseProps.value,
         labelWidth: props.labelWidth,
         labelPosition: props.labelPosition,

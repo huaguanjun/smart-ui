@@ -1,62 +1,47 @@
 <template>
   <div class="smart-form-async-example">
     <h3 class="form-demo-title">示例</h3>
-    
+
     <!-- Adapter 切换 -->
     <div class="adapter-switcher">
       <label>UI 库：</label>
       <div class="switcher-buttons">
-        <button 
+        <button
           type="button"
-          :class="['switch-btn', { active: adapter === 'element' }]" 
+          :class="['switch-btn', { active: adapter === 'element' }]"
           @click="adapter = 'element'"
         >
           Element Plus
         </button>
-        <button 
+        <button
           type="button"
-          :class="['switch-btn', { active: adapter === 'ant' }]" 
+          :class="['switch-btn', { active: adapter === 'ant' }]"
           @click="adapter = 'ant'"
         >
           Ant Design Vue
         </button>
       </div>
     </div>
-    
+
     <div>
-      <smart-form
-        ref="smartFormRef"
-        :adapter="adapter"
-        :model="formData"
-        :fields="fields"
-        :rules="rules"
-        label-position="right"
-        label-width="80px"
-        :inline="false"
-        :disabled="false"
-        :item-span="12"
-      >
+      <smart-form ref="smartFormRef" v-bind="formBind">
         <!-- 表单内容 -->
-        
+
         <!-- 合并的表单操作区域 -->
         <div class="form-primary-actions">
-          <button 
-            type="button"
-            class="form-btn reset-btn" 
-            @click="handleReset"
-          >
+          <button type="button" class="form-btn reset-btn" @click="handleReset">
             重置
           </button>
-          <button 
+          <button
             type="button"
-            class="form-btn submit-btn" 
+            class="form-btn submit-btn"
             @click="handleSubmit"
           >
             提交
           </button>
-          <button 
+          <button
             type="button"
-            class="demo-btn" 
+            class="demo-btn"
             @click="handleValidateUsername"
           >
             单独验证用户名
@@ -64,7 +49,7 @@
         </div>
       </smart-form>
     </div>
-    
+
     <!-- 表单提交结果 -->
     <div v-if="submitResult" class="submit-result">
       <h4>表单提交结果</h4>
@@ -74,172 +59,168 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { SmartForm } from '@smart-ui/core'
+import { ref, onMounted, computed } from "vue";
+import { SmartForm } from "@smart-ui/core";
 
 // UI 适配器切换
-const adapter = ref<'element' | 'ant'>('element')
+const adapter = ref<"element" | "ant">("element");
 
 // SmartForm 组件引用，用于调用其暴露的方法
-const smartFormRef = ref<any>(null)
+const smartFormRef = ref<any>(null);
 
 // 表单数据
 const formData = ref({
-  username: '', // input 类型
-  bio: '', // textarea 类型
+  username: "", // input 类型
+  bio: "", // textarea 类型
   department: null, // select 类型（异步加载）
-  gender: 'male', // radio 类型
-  hobbies: ['reading', 'coding'], // checkbox 类型
+  gender: "male", // radio 类型
+  hobbies: ["reading", "coding"], // checkbox 类型
   birthdate: null, // date 类型
   birthtime: null, // time 类型
   age: 18, // input-number 类型
   salary: 10000, // slider 类型
   active: false, // switch 类型
   rating: 3, // rate 类型
-  manager: '' // mention 类型
-})
+  manager: "", // mention 类型
+});
 
 // 验证规则
 const rules = ref({
   username: [
-    { required: true, message: '请输入用户名', trigger: 'blur' },
-    { min: 3, max: 20, message: '长度在 3 到 20 个字符', trigger: 'blur' }
+    { required: true, message: "请输入用户名", trigger: "blur" },
+    { min: 3, max: 20, message: "长度在 3 到 20 个字符", trigger: "blur" },
   ],
   bio: [
-    { required: true, message: '请输入个人简介', trigger: 'blur' },
-    { min: 10, message: '简介长度不能少于 10 个字符', trigger: 'blur' }
+    { required: true, message: "请输入个人简介", trigger: "blur" },
+    { min: 10, message: "简介长度不能少于 10 个字符", trigger: "blur" },
   ],
-  gender: [
-    { required: true, message: '请选择性别', trigger: 'change' }
-  ],
-  birthdate: [
-    { required: true, message: '请选择出生日期', trigger: 'change' }
-  ],
-  department: [
-    { required: true, message: '请选择部门', trigger: 'change' }
-  ]
-})
+  gender: [{ required: true, message: "请选择性别", trigger: "change" }],
+  birthdate: [{ required: true, message: "请选择出生日期", trigger: "change" }],
+  department: [{ required: true, message: "请选择部门", trigger: "change" }],
+});
 
 // 响应式字段配置，支持异步更新
 const fields = ref([
   {
-    name: 'username',
-    label: '用户名',
-    type: 'input',
-    placeholder: '请输入用户名',
-    defaultValue: '',
+    name: "username",
+    label: "用户名",
+    type: "input",
+    placeholder: "请输入用户名",
+    defaultValue: "",
     readonly: false,
     span: 12,
     typeProps: {
-      onChange: (value: string) => console.log('用户名变化:', value),
-      onBlur: (value: string) => console.log('用户名失焦:', value),
-      clearable: true
-    }
+      onChange: (value: string) => console.log("用户名变化:", value),
+      onBlur: (value: string) => console.log("用户名失焦:", value),
+      clearable: true,
+    },
   },
   {
-    name: 'bio',
-    label: '个人简介',
-    type: 'textarea',
-    placeholder: '请输入个人简介',
+    name: "bio",
+    label: "个人简介",
+    type: "textarea",
+    placeholder: "请输入个人简介",
     disabled: false,
     span: 24,
     typeProps: {
       rows: 3,
-      onChange: (value: string) => console.log('简介变化:', value)
-    }
+      onChange: (value: string) => console.log("简介变化:", value),
+    },
   },
   {
-    name: 'department',
-    label: '部门',
-    type: 'select',
-    placeholder: '请选择部门',
+    name: "department",
+    label: "部门",
+    type: "select",
+    placeholder: "请选择部门",
     span: 12,
     typeProps: {
       allowClear: true,
-      onChange: (value: string) => console.log('部门选择变化:', value)
+      onChange: (value: string) => console.log("部门选择变化:", value),
     },
     rules: rules.value.department,
-    options: [] // 初始为空，后续异步加载
+    options: [], // 初始为空，后续异步加载
   },
   {
-    name: 'gender',
-    label: '性别',
-    type: 'radio',
-    defaultValue: 'male',
+    name: "gender",
+    label: "性别",
+    type: "radio",
+    defaultValue: "male",
     span: 12,
     options: [
-      { label: '男', value: 'male' },
-      { label: '女', value: 'female' },
-      { label: '其他', value: 'other' }
+      { label: "男", value: "male" },
+      { label: "女", value: "female" },
+      { label: "其他", value: "other" },
     ],
     typeProps: {
-      onChange: (value: string) => console.log('性别变化:', value)
-    }
+      onChange: (value: string) => console.log("性别变化:", value),
+    },
   },
   {
-    name: 'hobbies',
-    label: '兴趣爱好',
-    type: 'checkbox',
-    defaultValue: ['reading', 'coding'],
+    name: "hobbies",
+    label: "兴趣爱好",
+    type: "checkbox",
+    defaultValue: ["reading", "coding"],
     span: 24,
     options: [
-      { label: '阅读', value: 'reading' },
-      { label: '运动', value: 'sports' },
-      { label: '音乐', value: 'music' },
-      { label: '旅行', value: 'travel' },
-      { label: '编程', value: 'coding' }
+      { label: "阅读", value: "reading" },
+      { label: "运动", value: "sports" },
+      { label: "音乐", value: "music" },
+      { label: "旅行", value: "travel" },
+      { label: "编程", value: "coding" },
     ],
     typeProps: {
-      onChange: (value: string[]) => console.log('兴趣爱好变化:', value)
-    }
+      onChange: (value: string[]) => console.log("兴趣爱好变化:", value),
+    },
   },
   {
-    name: 'birthdate',
-    label: '出生日期',
-    type: 'date',
+    name: "birthdate",
+    label: "出生日期",
+    type: "date",
     span: 12,
     typeProps: {
-      style: { width: '100%' },
-      placeholder: '请选择出生日期',
+      style: { width: "100%" },
+      placeholder: "请选择出生日期",
       onChange: (value: Date) => {
-        const birthtimeField = fields.value.find((field: any) => field.name === 'birthtime')
-        if(value && birthtimeField) {
-          birthtimeField.typeProps.disabled = false
+        const birthtimeField = fields.value.find(
+          (field: any) => field.name === "birthtime",
+        );
+        if (value && birthtimeField) {
+          birthtimeField.typeProps.disabled = false;
         } else if (!value && birthtimeField) {
-          birthtimeField.typeProps.disabled = true
+          birthtimeField.typeProps.disabled = true;
         }
-      }
-    }
+      },
+    },
   },
   {
-    name: 'birthtime',
-    label: '出生时间',
-    type: 'time',
+    name: "birthtime",
+    label: "出生时间",
+    type: "time",
     span: 12,
     typeProps: {
       disabled: true,
-      style: { width: '100%' },
-      placeholder: '请选择出生时间',
-      onChange: (value: any) => console.log('出生时间变化:', value)
-    }
+      style: { width: "100%" },
+      placeholder: "请选择出生时间",
+      onChange: (value: any) => console.log("出生时间变化:", value),
+    },
   },
   {
-    name: 'age',
-    label: '年龄',
-    type: 'input-number',
+    name: "age",
+    label: "年龄",
+    type: "input-number",
     defaultValue: 18,
     span: 12,
     typeProps: {
-      style: { width: '100%' },
+      style: { width: "100%" },
       min: 18,
       max: 100,
-      onChange: (value: number) => console.log('年龄变化:', value)
-    }
+      onChange: (value: number) => console.log("年龄变化:", value),
+    },
   },
   {
-    name: 'salary',
-    label: '薪资范围',
-    type: 'slider',
+    name: "salary",
+    label: "薪资范围",
+    type: "slider",
     defaultValue: 10000,
     span: 24,
     typeProps: {
@@ -247,125 +228,145 @@ const fields = ref([
       max: 50000,
       step: 1000,
       marks: {
-        3000: '3k',
-        10000: '10k',
-        20000: '20k',
-        50000: '50k'
+        3000: "3k",
+        10000: "10k",
+        20000: "20k",
+        50000: "50k",
       },
-      onChange: (value: number) => console.log('薪资范围变化:', value)
-    }
+      onChange: (value: number) => console.log("薪资范围变化:", value),
+    },
   },
   {
-    name: 'active',
-    label: '是否激活',
-    type: 'switch',
+    name: "active",
+    label: "是否激活",
+    type: "switch",
     defaultValue: false,
     span: 12,
     typeProps: {
-      onChange: (value: boolean) => console.log('激活状态变化:', value)
-    }
+      onChange: (value: boolean) => console.log("激活状态变化:", value),
+    },
   },
   {
-    name: 'rating',
-    label: '评分',
-    type: 'rate',
+    name: "rating",
+    label: "评分",
+    type: "rate",
     defaultValue: 3,
     span: 12,
     typeProps: {
-      onChange: (value: number) => console.log('评分变化:', value)
-    }
+      onChange: (value: number) => console.log("评分变化:", value),
+    },
   },
   {
-    name: 'manager',
-    label: '直属领导',
-    type: 'mention',
-    placeholder: '请输入领导姓名',
+    name: "manager",
+    label: "直属领导",
+    type: "mention",
+    placeholder: "请输入领导姓名",
     span: 12,
     typeProps: {
-      onChange: (value: string) => console.log('领导选择变化:', value),
+      onChange: (value: string) => console.log("领导选择变化:", value),
       options: [
-        { value: '张三', label: '张三' },
-        { value: '李四', label: '李四' },
-        { value: '王五', label: '王五' }
-      ]
-    }
-  }
-])
+        { value: "张三", label: "张三" },
+        { value: "李四", label: "李四" },
+        { value: "王五", label: "王五" },
+      ],
+    },
+  },
+]);
 
 // 提交结果
-const submitResult = ref('')
-
+const submitResult = ref("");
+const submitForm = (e) => {
+  console.log(e);
+};
 // 模拟从服务端异步获取部门选项
 async function loadDepartmentOptions() {
   try {
     // 模拟网络延迟
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
     // 从服务端获取部门数据
     const departmentOptions = [
-      { label: '技术部', value: 'tech' },
-      { label: '产品部', value: 'product' },
-      { label: '设计部', value: 'design' },
-      { label: '市场部', value: 'marketing' },
-      { label: '人事部', value: 'hr' },
-      { label: '财务部', value: 'finance' }
-    ]
-    
+      { label: "技术部", value: "tech" },
+      { label: "产品部", value: "product" },
+      { label: "设计部", value: "design" },
+      { label: "市场部", value: "marketing" },
+      { label: "人事部", value: "hr" },
+      { label: "财务部", value: "finance" },
+    ];
+
     // 更新字段配置中的options
-    const departmentField = fields.value.find(field => field.name === 'department')
+    const departmentField = fields.value.find(
+      (field) => field.name === "department",
+    );
     if (departmentField) {
-      departmentField.options = departmentOptions
+      departmentField.options = departmentOptions;
     }
   } catch (error) {
-    console.error('加载部门选项失败:', error)
+    console.error("加载部门选项失败:", error);
   }
 }
-
-// 组件挂载时加载部门选项
-onMounted(() => {
-  loadDepartmentOptions()
-})
 
 // 表单提交处理
 const handleSubmit = async () => {
   if (smartFormRef.value) {
     try {
-      const isValid = await smartFormRef.value.validateForm()
+      const isValid = await smartFormRef.value.validateForm();
       if (isValid) {
-        submitResult.value = JSON.stringify(formData.value, null, 2)
-        console.log('表单提交:', formData.value)
+        submitResult.value = JSON.stringify(formData.value, null, 2);
+        // console.log('表单提交:', formData.value)
       } else {
-        submitResult.value = '表单验证失败，请检查必填项！'
+        submitResult.value = "表单验证失败，请检查必填项！";
       }
     } catch (error) {
-      submitResult.value = '验证过程中发生错误'
-      console.error('表单验证失败:', error)
+      submitResult.value = "验证过程中发生错误";
+      console.error("表单验证失败:", error);
     }
   }
-}
+};
 
 // 表单重置处理
 const handleReset = () => {
   if (smartFormRef.value) {
-    smartFormRef.value.resetForm()
-    submitResult.value = ''
-    console.log('表单已重置')
+    smartFormRef.value.resetForm();
+    submitResult.value = "";
+    console.log("表单已重置");
   }
-}
+};
 
 // 外部调用单独验证用户名
 const handleValidateUsername = async () => {
   if (smartFormRef.value) {
     try {
-      const isValid = await smartFormRef.value.validateField('username')
-      submitResult.value = isValid ? '用户名验证通过！' : '用户名验证失败，请检查输入格式！'
-      console.log('外部调用用户名验证结果:', isValid)
+      const isValid = await smartFormRef.value.validateField("username");
+      submitResult.value = isValid
+        ? "用户名验证通过！"
+        : "用户名验证失败，请检查输入格式！";
+      console.log("外部调用用户名验证结果:", isValid);
     } catch (error) {
-      submitResult.value = '用户名验证过程中发生错误'
-      console.error('外部调用用户名验证失败:', error)
+      submitResult.value = "用户名验证过程中发生错误";
+      console.error("外部调用用户名验证失败:", error);
     }
   }
-}
+};
+const formBind = computed(() => {
+  return {
+    adapter: adapter.value,
+    model: formData.value,
+    fields: fields.value,
+    rules: rules.value, 
+    labelPosition: "right",
+    labelWidth: "80px",
+    inline: false,
+    disabled: false,
+    itemSpan: 12,
+    onSubmit: submitForm
+  };
+});
+console.log(formBind.value)
+// 组件挂载时加载部门选项
+onMounted(() => {
+  loadDepartmentOptions();
+});
 </script>
 
 <style scoped>
@@ -520,7 +521,8 @@ const handleValidateUsername = async () => {
 }
 
 /* 通用按钮样式 */
-.form-btn, .demo-btn {
+.form-btn,
+.demo-btn {
   padding: 10px 20px;
   border: none;
   border-radius: 8px;
@@ -572,7 +574,8 @@ const handleValidateUsername = async () => {
 }
 
 /* 按钮点击效果 */
-.form-btn:active, .demo-btn:active {
+.form-btn:active,
+.demo-btn:active {
   transform: translateY(0);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }

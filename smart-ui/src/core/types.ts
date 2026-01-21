@@ -122,6 +122,8 @@ export interface TableEngine {
 
 // 表单相关类型
 export type LabelPosition = 'left' | 'right' | 'top'
+export type ValidateTrigger = string | string[]
+export type RequiredMark = 'left' | 'right' | boolean
 
 // 字段选项配置
 export interface FieldOption {
@@ -169,24 +171,6 @@ export interface FieldInstance {
   setValue: (value: any) => void
 }
 
-// 按钮配置接口
-export interface ButtonConfig {
-  // 是否显示按钮
-  visible?: boolean
-  // 按钮文本
-  text?: string
-  // 按钮类型
-  type?: 'primary' | 'default' | 'success' | 'warning' | 'danger'
-  // 按钮尺寸
-  size?: SizeType
-  // 按钮样式
-  style?: Record<string, any>
-  // 按钮类名
-  class?: string | string[]
-  // 其他自定义属性
-  [key: string]: any
-}
-
 // 表单属性
 export interface SmartFormProps {
   // 使用的 UI 适配器
@@ -197,18 +181,68 @@ export interface SmartFormProps {
   rules?: Record<string, any[]>
   // 字段配置
   fields?: FieldConfig[]
-  // 标签宽度
-  labelWidth?: string | number
-  // 标签位置
-  labelPosition?: LabelPosition
-  // 是否内联表单
+  
+  // 基本布局属性
   inline?: boolean
-  // 表单大小
+  layout?: 'horizontal' | 'vertical' | 'inline'
+  
+  // 标签相关属性
+  labelPosition?: LabelPosition
+  labelWidth?: string | number
+  labelSuffix?: string
+  labelCol?: Record<string, any>
+  wrapperCol?: Record<string, any>
+  labelAlign?: 'left' | 'right'
+  labelWrap?: boolean
+  wrapperWrap?: boolean
+  colon?: boolean
+  
+  // 必填项相关属性
+  hideRequiredAsterisk?: boolean
+  requireAsteriskPosition?: 'left' | 'right'
+  requiredMark?: RequiredMark
+  
+  // 验证相关属性
+  showMessage?: boolean
+  inlineMessage?: boolean
+  statusIcon?: boolean
+  validateOnRuleChange?: boolean
+  validateTrigger?: ValidateTrigger
+  validateFirst?: boolean
+  preserve?: boolean
+  
+  // 交互相关属性
+  autoFocusFirstField?: boolean
+  scrollToError?: boolean
+  scrollToFirstError?: boolean
+  scrollIntoViewOptions?: object | boolean
+  
+  // 尺寸属性
   size?: SizeType
-  // 是否禁用表单
+  
+  // 禁用状态
   disabled?: boolean
+  
   // 通用的字段 span 值
   itemSpan?: number
+  
+  // 错误信息布局
+  messageCol?: Record<string, any>
+  
+  // 表单名称
+  name?: string
+  
+  // 表单初始值
+  initialValues?: Record<string, any>
+  
+  // 事件回调
+  submit?: (formData: Record<string, any>) => Promise<void> | void
+  onFinish?: (values: Record<string, any>) => void
+  onFinishFailed?: (errorInfo: any) => void
+  onValuesChange?: (changedValues: Record<string, any>, allValues: Record<string, any>) => void
+  onReset?: () => void
+  onFieldsChange?: (changedFields: any[], allFields: any[]) => void
+  
   // 其他自定义属性
   [key: string]: any
 }

@@ -25,16 +25,16 @@
               <!-- 其他组件（value） -->
               <template v-else>
                 <component
-                  :is="componentMap[field.type]"
+                  :is="componentMap[field.type as FieldType]"
                   v-model:value="model[field.name]"
                   v-bind="getComponentProps(field)"
                 >
                   <!-- select / radio / checkbox options -->
-                  <template v-if="hasOptions(field.type)">
+                  <template v-if="hasOptions(field.type as FieldType)">
                     <component
                       v-for="option in field.options ?? []"
                       :key="option.value"
-                      :is="componentChildrenMap[field.type]"
+                      :is="componentChildrenMap[field.type as FieldType]"
                       :value="option.value"
                     >
                       {{ option.label }}
@@ -57,21 +57,20 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import type { FieldConfig, ButtonConfig } from '../../core/types'
-import { antComponentsMap } from './components'
+import { 
+  FieldType, 
+  componentMap, 
+  componentChildrenMap, 
+  hasOptions, 
+  getComponentProps 
+} from './utils'
 
 /* -------------------------------- props -------------------------------- */
 
-const props = defineProps<{
-  model: Record<string, any>
-  fields?: FieldConfig[]
-  rules?: Record<string, any[]>
-  itemSpan?: number
-  submitButton?: ButtonConfig
-  cancelButton?: ButtonConfig
-  [key: string]: any
-}>()
+import type { SmartFormProps } from "../../core/types";
 
+const props = defineProps<SmartFormProps>();
+console.log('AntForm props:', props)
 const { model, fields, rules, itemSpan } = props
 
 /* ---------------------------- form ref ----------------------------- */
@@ -86,93 +85,6 @@ const formProps = computed(() => ({
   rules,
   itemSpan,
 }))
-
-/* -------------------------- 组件映射定义 -------------------------- */
-
-type FieldType =
-  | 'input'
-  | 'textarea'
-  | 'select'
-  | 'select-v2'
-  | 'radio'
-  | 'checkbox'
-  | 'date'
-  | 'time'
-  | 'switch'
-  | 'slider'
-  | 'mention'
-  | 'input-number'
-  | 'cascader'
-  | 'tree-select'
-  | 'upload'
-  | 'rate'
-  | 'color-picker'
-  | 'transfer'
-  | 'autocomplete'
-
-// 从 components.ts 中使用组件映射
-const componentMap: Record<FieldType, string> = {
-  input: antComponentsMap.input.component,
-  textarea: antComponentsMap.textarea.component,
-  select: antComponentsMap.select.component,
-  'select-v2': antComponentsMap['select-v2'].component,
-  radio: antComponentsMap.radio.component,
-  checkbox: antComponentsMap.checkbox.component,
-  date: antComponentsMap.date.component,
-  time: antComponentsMap.time.component,
-  switch: antComponentsMap.switch.component,
-  slider: antComponentsMap.slider.component,
-  mention: antComponentsMap.mention.component,
-  'input-number': antComponentsMap['input-number'].component,
-  cascader: antComponentsMap.cascader.component,
-  'tree-select': antComponentsMap['tree-select'].component,
-  upload: antComponentsMap.upload.component,
-  rate: antComponentsMap.rate.component,
-  'color-picker': antComponentsMap['color-picker'].component,
-  transfer: antComponentsMap.transfer.component,
-  autocomplete: antComponentsMap.autocomplete.component,
-}
-
-const componentChildrenMap: Partial<Record<FieldType, string>> = {
-  select: antComponentsMap.select.optionsComponent,
-  'select-v2': antComponentsMap['select-v2'].optionsComponent,
-  radio: antComponentsMap.radio.optionsComponent,
-  checkbox: antComponentsMap.checkbox.optionsComponent,
-}
-
-/* ------------------------ 工具函数（关键） ------------------------ */
-
-/**
- * 是否需要 options
- */
-function hasOptions(type: FieldType): boolean {
-  return type === 'select' || type === 'select-v2' || type === 'radio' || type === 'checkbox'
-}
-
-/**
- * 提取真正传给 AntD 组件的 props
- * ❗️避免 v-bind="field" 造成 type / name / rules 冲突
- * 使用 components.ts 中定义的 props 函数
- */
-function getComponentProps(field: FieldConfig) {
-  const config = antComponentsMap[field.type as keyof typeof antComponentsMap]
-  if (config && typeof (config as any).props === 'function') {
-    return typeof (config as any).props === 'function' ? (config as any).props(field) : {}
-  }
-  
-  // 回退逻辑
-  const {
-    name,
-    label,
-    rules,
-    span,
-    options,
-    type,
-    ...rest
-  } = field
-
-  return rest
-}
 
 /* ------------------------ 表单操作 ------------------------ */
 
