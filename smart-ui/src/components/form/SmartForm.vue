@@ -23,7 +23,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, useAttrs } from 'vue'
+import { computed, ref } from 'vue'
 import { useFormEngine } from '../../core/useFormEngine'
 import ElementForm from '../../adapters/element/Form.vue'
 import AntForm from '../../adapters/ant/Form.vue'
@@ -39,10 +39,7 @@ const props = withDefaults(defineProps<SmartFormProps>(), {
   fields: () => [],
 })
 
-/**
- * 获取所有未声明为 props 的属性
- */
-const attrs = useAttrs()
+
 
 /**
  * 当前使用的适配器
