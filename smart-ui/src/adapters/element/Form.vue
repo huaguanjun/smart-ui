@@ -1,11 +1,16 @@
 <template>
-  <el-form v-bind="formProps" class="smart-form-element" ref="formRef">
+  <el-form
+    ref="formRef"
+    v-bind="formProps"
+    class="smart-form-element"
+  >
     <el-row :gutter="20">
+      <!-- 自动字段 -->
       <template v-if="fields?.length">
         <el-col
           v-for="field in fields"
           :key="field.name"
-          :span="field.span ?? formProps.itemSpan ?? 24"
+          :span="field.span ?? itemSpan ?? 24"
         >
           <el-form-item
             :label="field.label"
@@ -13,8 +18,11 @@
             :rules="field.rules ?? rules?.[field.name]"
           >
             <!-- 命名插槽优先 -->
-            <slot :name="field.name" :field="field" :model="model">
-              <!-- 动态组件 -->
+            <slot
+              :name="field.name"
+              :field="field"
+              :model="model"
+            >
               <component
                 :is="componentMap[field.type as FieldType]"
                 v-model="model[field.name]"
@@ -38,7 +46,7 @@
       </template>
 
       <!-- 自定义内容 -->
-      <el-col>
+      <el-col :span="24">
         <slot />
       </el-col>
     </el-row>
@@ -46,50 +54,52 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
-import { 
-  FieldType, 
-  componentMap, 
-  componentChildrenMap, 
-  hasOptions, 
-  getComponentProps 
-} from "./utils";
+import { computed, ref, useAttrs } from 'vue'
+import type { SmartFormProps } from '../../core/types'
+import {
+  FieldType,
+  componentMap,
+  componentChildrenMap,
+  hasOptions,
+  getComponentProps
+} from './utils'
 
 /* -------------------------------- props -------------------------------- */
 
-import type { SmartFormProps } from "../../core/types";
+const props = defineProps<SmartFormProps>()
+const attrs = useAttrs()
 
-const props = defineProps<SmartFormProps>();
+const { model, fields, rules, itemSpan } = props
 
-const { model, fields, rules, itemSpan } = props;
+/* -------------------------------- refs -------------------------------- */
 
-/* ---------------------------- form ref ----------------------------- */
+const formRef = ref<any>(null)
 
-const formRef = ref<any>(null);
-
-/* ---------------------------- el-form props ----------------------------- */
-
-const formProps = computed(() => ({
-  ...props,
-  model,
-  rules,
-  itemSpan,
-}));
-
-/* ------------------------ 表单操作 ------------------------ */
-
+/* ----------------------------- el-form props ----------------------------- */
 /**
- * 暴露表单实例方法
+ * Element 壳不做跨 UI 逻辑
+ * 只负责把 FormEngine 给的 props + attrs 透传给 el-form
  */
+const formProps = computed(() => Object.assign({}, attrs, props))
+
+/* ----------------------------- expose api ----------------------------- */
+
 defineExpose({
-  validate: (callback?: (valid: boolean) => void) =>
-    formRef.value?.validate(callback),
-  validateField: (
+  validate(callback?: (valid: boolean) => void) {
+    return formRef.value?.validate(callback)
+  },
+
+  validateField(
     prop: string | string[],
     callback?: (valid: boolean) => void
-  ) => formRef.value?.validateField(prop, callback),
-  resetFields: () => formRef.value?.resetFields(),
-});
+  ) {
+    return formRef.value?.validateField(prop, callback)
+  },
+
+  resetFields() {
+    formRef.value?.resetFields()
+  }
+})
 </script>
 
 <style scoped>

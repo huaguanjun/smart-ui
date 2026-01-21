@@ -1,11 +1,16 @@
 <template>
-  <a-form v-bind="formProps" class="smart-form-ant" ref="formRef">
+  <a-form
+    ref="formRef"
+    v-bind="formProps"
+    class="smart-form-ant"
+  >
     <a-row>
+      <!-- 自动字段 -->
       <template v-if="fields?.length">
         <a-col
           v-for="field in fields"
           :key="field.name"
-          :span="field.span ?? formProps.itemSpan ?? 24"
+          :span="field.span ?? itemSpan ?? 24"
         >
           <a-form-item
             :label="field.label"
@@ -13,102 +18,103 @@
             :rules="field.rules ?? rules?.[field.name]"
           >
             <!-- 命名插槽优先 -->
-            <slot :name="field.name" :field="field" :model="model">
-              <!-- switch 单独处理（checked） -->
-              <template v-if="field.type === 'switch'">
-                <a-switch
-                  v-model:checked="model[field.name]"
-                  v-bind="getComponentProps(field)"
-                />
-              </template>
+            <slot
+              :name="field.name"
+              :field="field"
+              :model="model"
+            >
+              <!-- Switch（checked） -->
+              <a-switch
+                v-if="field.type === 'switch'"
+                v-model:checked="model[field.name]"
+                v-bind="getComponentProps(field)"
+              />
 
               <!-- 其他组件（value） -->
-              <template v-else>
-                <component
-                  :is="componentMap[field.type as FieldType]"
-                  v-model:value="model[field.name]"
-                  v-bind="getComponentProps(field)"
-                >
-                  <!-- select / radio / checkbox options -->
-                  <template v-if="hasOptions(field.type as FieldType)">
-                    <component
-                      v-for="option in field.options ?? []"
-                      :key="option.value"
-                      :is="componentChildrenMap[field.type as FieldType]"
-                      :value="option.value"
-                    >
-                      {{ option.label }}
-                    </component>
-                  </template>
-                </component>
-              </template>
+              <component
+                v-else
+                :is="componentMap[field.type as FieldType]"
+                v-model:value="model[field.name]"
+                v-bind="getComponentProps(field)"
+              >
+                <!-- options -->
+                <template v-if="hasOptions(field.type as FieldType)">
+                  <component
+                    v-for="option in field.options ?? []"
+                    :key="option.value"
+                    :is="componentChildrenMap[field.type as FieldType]"
+                    :value="option.value"
+                  >
+                    {{ option.label }}
+                  </component>
+                </template>
+              </component>
             </slot>
           </a-form-item>
         </a-col>
       </template>
 
       <!-- 自定义内容 -->
-    <a-col :span="24">
-      <slot />
-    </a-col>
-  </a-row>
-</a-form>
+      <a-col :span="24">
+        <slot />
+      </a-col>
+    </a-row>
+  </a-form>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { 
-  FieldType, 
-  componentMap, 
-  componentChildrenMap, 
-  hasOptions, 
-  getComponentProps 
+import { computed, ref, useAttrs } from 'vue'
+import type { SmartFormProps } from '../../core/types'
+import {
+  FieldType,
+  componentMap,
+  componentChildrenMap,
+  hasOptions,
+  getComponentProps
 } from './utils'
 
 /* -------------------------------- props -------------------------------- */
 
-import type { SmartFormProps } from "../../core/types";
+const props = defineProps<SmartFormProps>()
+const attrs = useAttrs()
 
-const props = defineProps<SmartFormProps>();
-console.log('AntForm props:', props)
 const { model, fields, rules, itemSpan } = props
 
-/* ---------------------------- form ref ----------------------------- */
+/* -------------------------------- refs -------------------------------- */
 
 const formRef = ref<any>(null)
 
-/* ---------------------------- a-form props ----------------------------- */
-
-const formProps = computed(() => ({
-  ...props,
-  model,
-  rules,
-  itemSpan,
-}))
-
-/* ------------------------ 表单操作 ------------------------ */
-
+/* ----------------------------- a-form props ----------------------------- */
 /**
- * 暴露表单实例方法
+ * 只负责透传 Ant Design Form 需要的 props
+ * SmartForm 的跨 UI 逻辑由 FormEngine 处理
  */
+const formProps = computed(() => Object.assign({}, attrs, props))
+
+/* ----------------------------- expose api ----------------------------- */
+
 defineExpose({
-  validate: async () => {
+  async validate() {
     try {
-      await formRef.value.validateFields()
+      await formRef.value?.validateFields()
       return true
-    } catch (error) {
+    } catch {
       return false
     }
   },
-  validateField: async (name: string) => {
+
+  async validateField(name: string) {
     try {
-      await formRef.value.validateFields([name])
+      await formRef.value?.validateFields([name])
       return true
-    } catch (error) {
+    } catch {
       return false
     }
   },
-  resetFields: () => formRef.value?.resetFields()
+
+  resetFields() {
+    formRef.value?.resetFields()
+  }
 })
 </script>
 
