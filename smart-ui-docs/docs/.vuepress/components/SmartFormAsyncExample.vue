@@ -33,9 +33,10 @@
             重置
           </button>
           <button
-            type="button"
+            type="submit"
             class="form-btn submit-btn"
             @click="handleSubmit"
+            html-type="submit"
           >
             提交
           </button>
@@ -63,7 +64,7 @@ import { ref, onMounted, computed } from "vue";
 import { SmartForm } from "@smart-ui/core";
 
 // UI 适配器切换
-const adapter = ref<"element" | "ant">("element");
+const adapter = ref<"element" | "ant">("ant");
 
 // SmartForm 组件引用，用于调用其暴露的方法
 const smartFormRef = ref<any>(null);
@@ -275,9 +276,6 @@ const fields = ref([
 
 // 提交结果
 const submitResult = ref("");
-const submitForm = (e) => {
-  console.log(e);
-};
 // 模拟从服务端异步获取部门选项
 async function loadDepartmentOptions() {
   try {
@@ -359,10 +357,11 @@ const formBind = computed(() => {
     inline: false,
     disabled: false,
     itemSpan: 12,
-    onSubmit: submitForm
+    onSubmit: (e) => {
+      console.log(e)
+    }
   };
 });
-console.log(formBind.value)
 // 组件挂载时加载部门选项
 onMounted(() => {
   loadDepartmentOptions();

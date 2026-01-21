@@ -3,20 +3,26 @@
 SmartForm 是 Smart UI 的核心组件之一，它可以通过简单的 JS 配置自动生成复杂的表单。
 
 ## 基本用法
+
 <SmartFormAsyncExample />
 ```vue
 <template>
   <div>
     <smart-form
-      :model="formData"
-      :fields="fields"
-      :rules="rules"
-      :submit-button="{ text: '提交', type: 'primary' }"
-      :cancel-button="{ text: '取消' }"
-      @submit="handleSubmit"
-      @cancel="handleCancel"
-    >
-      <!-- 表单内容 -->
+    ref="smartFormRef"
+    :model="formData"
+    :fields="fields"
+    :rules="rules"
+    @onFinish="handleSubmit"
+    @onFinishFailed="handleSubmitFailed"
+    @onValuesChange="handleValuesChange"
+    @onReset="handleReset">
+      <template #default>
+        <div class="form-actions">
+          <button type="button" @click="submitForm">提交</button>
+          <button type="button" @click="resetForm">重置</button>
+        </div>
+      </template>
     </smart-form>
   </div>
 </template>
@@ -94,21 +100,44 @@ onMounted(() => {
 })
 
 // 表单提交处理
-const handleSubmit = (isValid, model) => {
-  if (isValid) {
-    console.log('表单提交:', model)
-    alert('提交成功！姓名：' + model.name + '，城市：' + model.city)
-  }
+const handleSubmit = (values) => {
+  console.log('表单提交:', values)
+  alert('提交成功！姓名：' + values.name + '，城市：' + values.city)
 }
 
-// 表单取消处理
-const handleCancel = () => {
-  console.log('表单取消')
+// 表单提交失败处理
+const handleSubmitFailed = (errorInfo) => {
+  console.log('表单提交失败:', errorInfo)
+}
+
+// 表单值变化处理
+const handleValuesChange = (changedValues, allValues) => {
+  console.log('表单值变化:', changedValues, allValues)
+}
+
+// 表单重置处理
+const handleReset = () => {
+  console.log('表单重置')
   // 重置表单数据
   formData.value = {
     name: '',
     city: 'beijing'
   }
+}
+
+// 提交表单函数
+const smartFormRef = ref(null)
+const submitForm = async () => {
+  const isValid = await smartFormRef.value.validateForm()
+  if (isValid) {
+    // 执行提交逻辑
+    handleSubmit(formData.value)
+  }
+}
+
+// 重置表单函数
+const resetForm = () => {
+  smartFormRef.value.resetForm()
 }
 </script>
 ```
@@ -121,15 +150,33 @@ const handleCancel = () => {
 | model | `Record<string, any>` | 表单数据模型 | `{}` |
 | fields | `FieldConfig[]` | 表单字段配置 | `[]` |
 | rules | `Record<string, any[]>` | 表单验证规则 | `{}` |
-| adapter | `'element'  'ant'` | UI 适配器 | `'element'` |
-| labelWidth | `string  number` | 标签宽度 | - |
-| labelPosition | `'left'  'right'  'top'` | 标签位置 | `'left'` |
+| adapter | `'element' \| 'ant'` | UI 适配器 | `'element'` |
 | inline | `boolean` | 是否内联表单 | `false` |
-| size | `'small'  'medium'  'large'` | 表单大小 | `'medium'` |
+| layout | `'horizontal' \| 'vertical' \| 'inline'` | 表单布局 | `'horizontal'` |
+| labelWidth | `string \| number` | 标签宽度 | - |
+| labelPosition | `'left' \| 'right' \| 'top'` | 标签位置 | `'left'` |
+| labelAlign | `'left' \| 'right'` | 标签对齐方式 | - |
+| labelCol | `Record<string, any>` | 标签列布局配置 | - |
+| wrapperCol | `Record<string, any>` | 内容列布局配置 | - |
+| labelWrap | `boolean` | 标签是否换行 | - |
+| wrapperWrap | `boolean` | 内容是否换行 | - |
+| colon | `boolean` | 是否显示标签冒号 | - |
+| hideRequiredAsterisk | `boolean` | 是否隐藏必填项星号 | - |
+| requireAsteriskPosition | `'left' \| 'right'` | 必填项星号位置 | - |
+| requiredMark | `'left' \| 'right' \| boolean` | 必填标记配置 | - |
+| showMessage | `boolean` | 是否显示验证信息 | - |
+| inlineMessage | `boolean` | 是否行内显示验证信息 | - |
+| statusIcon | `boolean` | 是否显示验证状态图标 | - |
+| validateOnRuleChange | `boolean` | 规则变化时是否触发验证 | - |
+| validateTrigger | `string \| string[]` | 验证触发方式 | - |
+| validateFirst | `boolean` | 是否只显示第一个验证错误 | - |
+| autoFocusFirstField | `boolean` | 是否自动聚焦第一个字段 | - |
+| scrollToError | `boolean` | 验证失败时是否滚动到错误字段 | - |
+| scrollToFirstError | `boolean` | 验证失败时是否滚动到第一个错误字段 | - |
+| scrollIntoViewOptions | `object \| boolean` | 滚动选项配置 | - |
+| size | `'small' \| 'medium' \| 'large'` | 表单大小 | `'medium'` |
 | disabled | `boolean` | 是否禁用表单 | `false` |
 | itemSpan | `number` | 通用的字段 span 值 | - |
-| submitButton | `ButtonConfig` | 提交按钮配置 | - |
-| cancelButton | `ButtonConfig` | 取消按钮配置 | - |
 
 ### FieldConfig
 
@@ -159,10 +206,14 @@ SmartForm 组件的属性遵循以下优先级顺序（从高到低）：
 ### typeProps 示例
 
 ```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+
+// 表单字段配置
 const fields = ref([
-  { 
-    name: 'username', 
-    label: '用户名', 
+  {
+    name: 'username',
+    label: '用户名',
     type: 'input',
     // 内置属性
     placeholder: '请输入用户名',
@@ -180,9 +231,9 @@ const fields = ref([
 
 // 跨 UI 库属性兼容示例
 const selectField = ref([
-  { 
-    name: 'city', 
-    label: '城市', 
+  {
+    name: 'city',
+    label: '城市',
     type: 'select',
     // 同时支持 antd 的 allowClear 和 element 的 clearable
     typeProps: {
@@ -197,9 +248,9 @@ const selectField = ref([
 
 // 其他组件类型示例
 const otherFields = ref([
-  { 
-    name: 'age', 
-    label: '年龄', 
+  {
+    name: 'age',
+    label: '年龄',
     type: 'input-number',
     typeProps: {
       min: 18,
@@ -207,9 +258,9 @@ const otherFields = ref([
       onChange: (value) => console.log('年龄变化:', value)
     }
   },
-  { 
-    name: 'rating', 
-    label: '评分', 
+  {
+    name: 'rating',
+    label: '评分',
     type: 'rate',
     typeProps: {
       max: 5,
@@ -217,7 +268,7 @@ const otherFields = ref([
     }
   }
 ])
-
+```
 ## 插槽使用
 
 SmartForm 支持为每个字段自定义插槽，您可以通过插槽完全控制字段的渲染。
@@ -244,14 +295,14 @@ SmartForm 支持为每个字段自定义插槽，您可以通过插槽完全控�
     </template>
   </smart-form>
 </template>
-```
+````
 
 ### 插槽作用域
 
-| 属性名 | 类型 | 说明 |
-|-------|------|------|
-| field | `FieldConfig` | 字段配置对象 |
-| model | `Record<string, any>` | 表单数据模型 |
+| 属性名 | 类型                  | 说明         |
+| ------ | --------------------- | ------------ |
+| field  | `FieldConfig`         | 字段配置对象 |
+| model  | `Record<string, any>` | 表单数据模型 |
 
 ## 布局系统
 
@@ -272,20 +323,16 @@ SmartForm 支持通过 `itemSpan` 属性和 `span` 属性控制表单字段的�
 ### 设置单个字段宽度
 
 ```vue
-const fields = [
-  {
-    name: 'username',
-    label: '用户名',
-    type: 'input',
-    span: 8 <!-- 覆盖通用设置，宽度为 8 -->
-  },
-  {
-    name: 'email',
-    label: '邮箱',
-    type: 'input',
-    span: 16 <!-- 覆盖通用设置，宽度为 16 -->
-  }
-]
+<script setup lang="ts">
+import { ref } from 'vue'
+
+// 表单字段配置
+const fields = ref([
+<!-- 覆盖通用设置，宽度为 8 -->
+{ name: 'username', label: '用户名', type: 'input', span: 8},
+<!-- 覆盖通用设置，宽度为 16 -->
+{ name: 'email', label: '邮箱', type: 'input', span: 16}])
+</script>
 ```
 
 ## 表单验证
@@ -299,7 +346,7 @@ SmartForm 支持两种验证规则设置方式：
   :model="formData"
   :fields="fields"
   :rules="{
-    username: [{ required: true, message: '请输入用户名', trigger: 'blur' }]
+    username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
   }"
 >
   <!-- 表单内容 -->
@@ -309,14 +356,8 @@ SmartForm 支持两种验证规则设置方式：
 ### 2. 通过 `field.rules` 设置
 
 ```vue
-const fields = [
-  {
-    name: 'username',
-    label: '用户名',
-    type: 'input',
-    rules: [{ required: true, message: '请输入用户名', trigger: 'blur' }]
-  }
-]
+const fields = [ { name: 'username', label: '用户名', type: 'input', rules: [{
+required: true, message: '请输入用户名', trigger: 'blur' }] } ]
 ```
 
 ## 支持的字段类型
@@ -343,6 +384,125 @@ SmartForm 支持以下字段类型：
 - `transfer`：穿梭框
 - `autocomplete`：自动完成
 
+## 事件处理
+
+SmartForm 支持 Element Plus 和 Ant Design Vue 的官方事件，这些事件会根据当前使用的适配器自动适配。
+
+### 支持的事件
+
+| 事件名         | 类型                                                                           | 说明               |
+| -------------- | ------------------------------------------------------------------------------ | ------------------ |
+| onFinish       | `(values: Record<string, any>) => void`                                        | 表单验证成功后触发 |
+| onFinishFailed | `(errorInfo: any) => void`                                                     | 表单验证失败后触发 |
+| onValuesChange | `(changedValues: Record<string, any>, allValues: Record<string, any>) => void` | 表单值变化时触发   |
+| onReset        | `() => void`                                                                   | 表单重置时触发     |
+| onFieldsChange | `(changedFields: any[], allFields: any[]) => void`                             | 字段状态变化时触发 |
+
+### 事件使用示例
+
+```vue
+<template>
+  <smart-form
+    :model="formData"
+    :fields="fields"
+    :rules="rules"
+    @onFinish="handleFinish"
+    @onValuesChange="handleValuesChange"
+  >
+    <!-- 表单内容 -->
+  </smart-form>
+</template>
+
+<script setup lang="ts">
+import { ref } from "vue";
+
+const formData = ref({ name: "", email: "" });
+const fields = ref([
+  { name: "name", label: "姓名", type: "input" },
+  { name: "email", label: "邮箱", type: "input" },
+]);
+const rules = ref({
+  name: [{ required: true, message: "请输入姓名", trigger: "blur" }],
+  email: [{ required: true, message: "请输入邮箱", trigger: "blur" }],
+});
+
+const handleFinish = (values) => {
+  console.log("表单提交:", values);
+};
+
+const handleValuesChange = (changedValues, allValues) => {
+  console.log("值变化:", changedValues, allValues);
+};
+</script>
+```
+
+## 跨 UI 兼容性
+
+SmartForm 通过适配器模式处理不同 UI 库的属性映射，确保您可以使用统一的 API 构建跨 UI 兼容的表单。
+
+### 属性映射机制
+
+SmartForm 会自动将通用属性转换为当前 UI 库的特定属性：
+
+| 通用属性      | Element Plus 属性 | Ant Design Vue 属性  |
+| ------------- | ----------------- | -------------------- |
+| labelPosition | label-position    | labelAlign           |
+| labelWidth    | label-width       | labelCol.style.width |
+| inline        | inline            | layout="inline"      |
+| disabled      | disabled          | disabled             |
+
+### 直接使用官方属性
+
+您也可以直接使用 Element Plus 或 Ant Design Vue 的官方属性，SmartForm 会自动将它们传递给底层组件：
+
+```vue
+<template>
+  <smart-form
+    :model="formData"
+    :fields="fields"
+    :rules="rules"
+
+    <!-- 直接使用 Element Plus / Ant Design Vue 官方属性 -->
+    :layout="'horizontal'"
+    :labelCol="{ span: 8 }"
+    :wrapperCol="{ span: 16 }"
+    :validateTrigger="['blur', 'change']"
+    :scrollToFirstError="true"
+
+    @onFinish="handleFinish"
+  >
+    <!-- 表单内容 -->
+  </smart-form>
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue'
+
+const formData = ref({ name: '', email: '' })
+const fields = ref([
+  { name: 'name', label: '姓名', type: 'input' },
+  { name: 'email', label: '邮箱', type: 'input' }
+])
+const rules = ref({
+  name: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
+  email: [{ required: true, message: '请输入邮箱', trigger: 'blur' }]
+})
+
+const handleFinish = (values) => {
+  console.log('表单提交:', values)
+}
+</script>
+```
+
+### 适配器特定属性
+
+如果您需要使用特定 UI 库的独有属性，可以通过 `typeProps` 配置：
+
+```vue
+const fields = ref([ { name: 'username', label: '用户名', type: 'input',
+typeProps: { // Element Plus 属性 clearable: true, // Ant Design Vue 属性
+allowClear: true, // 适配器会自动处理兼容性 } } ])
+```
 
 ## 外部方法调用
 
@@ -350,11 +510,11 @@ SmartForm 组件通过 `defineExpose` 暴露了一些方法，允许您通过 re
 
 ### 暴露的方法
 
-| 方法名 | 类型 | 说明 |
-|-------|------|------|
-| validateForm | `() => Promise<boolean>` | 验证整个表单，返回验证结果 |
+| 方法名        | 类型                                 | 说明                       |
+| ------------- | ------------------------------------ | -------------------------- |
+| validateForm  | `() => Promise<boolean>`             | 验证整个表单，返回验证结果 |
 | validateField | `(name: string) => Promise<boolean>` | 验证单个字段，返回验证结果 |
-| resetForm | `() => void` | 重置表单数据 |
+| resetForm     | `() => void`                         | 重置表单数据               |
 
 ### 使用示例
 
@@ -366,14 +526,10 @@ SmartForm 组件通过 `defineExpose` 暴露了一些方法，允许您通过 re
       :model="formData"
       :fields="fields"
       :rules="rules"
-      :submit-button="{ text: '提交', type: 'primary' }"
-      :cancel-button="{ text: '取消' }"
-      @submit="handleSubmit"
-      @cancel="handleCancel"
     >
       <!-- 表单内容 -->
     </smart-form>
-    
+
     <!-- 外部调用按钮 -->
     <div style="margin-top: 20px;">
       <button @click="validateForm">外部验证表单</button>
@@ -384,88 +540,77 @@ SmartForm 组件通过 `defineExpose` 暴露了一些方法，允许您通过 re
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref } from "vue";
 
 // SmartForm 组件引用
-const smartFormRef = ref(null)
+const smartFormRef = ref(null);
 
 // 表单数据
 const formData = ref({
-  username: '',
-  email: ''
-})
+  username: "",
+  email: "",
+});
 
 // 验证规则
 const rules = ref({
   username: [
-    { required: true, message: '请输入用户名', trigger: 'blur' },
-    { min: 3, max: 20, message: '长度在 3 到 20 个字符', trigger: 'blur' }
+    { required: true, message: "请输入用户名", trigger: "blur" },
+    { min: 3, max: 20, message: "长度在 3 到 20 个字符", trigger: "blur" },
   ],
   email: [
-    { required: true, message: '请输入邮箱', trigger: 'blur' },
-    { type: 'email', message: '请输入有效的邮箱地址', trigger: 'blur' }
-  ]
-})
+    { required: true, message: "请输入邮箱", trigger: "blur" },
+    { type: "email", message: "请输入有效的邮箱地址", trigger: "blur" },
+  ],
+});
 
 // 字段配置
 const fields = ref([
   {
-    name: 'username',
-    label: '用户名',
-    type: 'input',
-    placeholder: '请输入用户名'
+    name: "username",
+    label: "用户名",
+    type: "input",
+    placeholder: "请输入用户名",
   },
   {
-    name: 'email',
-    label: '邮箱',
-    type: 'input',
-    placeholder: '请输入邮箱'
-  }
-])
+    name: "email",
+    label: "邮箱",
+    type: "input",
+    placeholder: "请输入邮箱",
+  },
+]);
 
 // 外部调用表单验证
 const validateForm = async () => {
-  const isValid = await smartFormRef.value.validateForm()
+  const isValid = await smartFormRef.value.validateForm();
   if (isValid) {
-    console.log('表单验证通过！')
+    console.log("表单验证通过！");
   } else {
-    console.log('表单验证失败，请检查必填项！')
+    console.log("表单验证失败，请检查必填项！");
   }
-}
+};
 
 // 外部调用单个字段验证
 const validateUsername = async () => {
-  const isValid = await smartFormRef.value.validateField('username')
+  const isValid = await smartFormRef.value.validateField("username");
   if (isValid) {
-    console.log('用户名验证通过！')
+    console.log("用户名验证通过！");
   } else {
-    console.log('用户名验证失败，请检查输入格式！')
+    console.log("用户名验证失败，请检查输入格式！");
   }
-}
+};
 
 // 外部调用表单重置
 const resetForm = () => {
-  smartFormRef.value.resetForm()
-  console.log('表单已重置！')
-}
-
-// 表单提交处理
-const handleSubmit = (isValid, model) => {
-  if (isValid) {
-    console.log('表单提交:', model)
-  }
-}
-
-// 表单取消处理
-const handleCancel = () => {
-  console.log('表单取消')
-}
+  smartFormRef.value.resetForm();
+  console.log("表单已重置！");
+};
 </script>
 ```
 
 ## 示例
 
 ### 完整表单示例
+
 ```vue
 <template>
   <div>
@@ -474,88 +619,112 @@ const handleCancel = () => {
       <div class="loading-spinner"></div>
       <p>正在加载表单配置...</p>
     </div>
-    
+
     <!-- 表单渲染 -->
     <smart-form
       v-else
+      ref="smartFormRef"
       :model="formData"
       :fields="formFields"
       :rules="formRules"
-      :submit-button="{ text: '提交', type: 'primary' }"
-      :cancel-button="{ text: '取消' }"
-      @submit="handleSubmit"
-      @cancel="handleCancel"
-    />
+      @onFinish="handleSubmit"
+      @onReset="handleCancel"
+    >
+      <!-- 自定义提交按钮 -->
+      <template #default>
+        <div class="form-actions">
+          <button type="button" @click="submitForm">提交</button>
+          <button type="button" @click="resetForm">重置</button>
+        </div>
+      </template>
+    </smart-form>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted } from "vue";
 
-const formData = ref({})
-const formFields = ref([])
-const formRules = ref({})
-const loading = ref(true)
+const formData = ref({});
+const formFields = ref([]);
+const formRules = ref({});
+const loading = ref(true);
+const smartFormRef = ref(null);
 
 // 模拟从服务端获取完整表单配置
 async function loadFormConfig() {
-  loading.value = true
-  
+  loading.value = true;
+
   try {
     // 模拟网络延迟
-    await new Promise(resolve => setTimeout(resolve, 1500))
-    
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+
     // 1. 从服务端获取字段配置
-    const response = await fetch('/api/form-config')
-    const config = await response.json()
-    
+    const response = await fetch("/api/form-config");
+    const config = await response.json();
+
     // 2. 从服务端获取表单初始数据
-    const dataResponse = await fetch('/api/form-data')
-    const initialData = await dataResponse.json()
-    
+    const dataResponse = await fetch("/api/form-data");
+    const initialData = await dataResponse.json();
+
     // 3. 从服务端获取选项数据
-    const optionsResponse = await fetch('/api/form-options')
-    const optionsData = await optionsResponse.json()
-    
+    const optionsResponse = await fetch("/api/form-options");
+    const optionsData = await optionsResponse.json();
+
     // 4. 整合配置和数据
-    const fieldsWithOptions = config.fields.map(field => {
+    const fieldsWithOptions = config.fields.map((field) => {
       // 为需要选项的字段添加从服务端获取的options
-      if (['select', 'select-v2', 'radio', 'checkbox'].includes(field.type) && optionsData[field.name]) {
+      if (
+        ["select", "select-v2", "radio", "checkbox"].includes(field.type) &&
+        optionsData[field.name]
+      ) {
         return {
           ...field,
-          options: optionsData[field.name]
-        }
+          options: optionsData[field.name],
+        };
       }
-      return field
-    })
-    
+      return field;
+    });
+
     // 更新响应式数据
-    formFields.value = fieldsWithOptions
-    formData.value = initialData
-    formRules.value = config.rules
+    formFields.value = fieldsWithOptions;
+    formData.value = initialData;
+    formRules.value = config.rules;
   } catch (error) {
-    console.error('加载表单配置失败:', error)
-    alert('表单加载失败，请刷新页面重试')
+    console.error("加载表单配置失败:", error);
+    alert("表单加载失败，请刷新页面重试");
   } finally {
-    loading.value = false
+    loading.value = false;
   }
 }
 
 onMounted(() => {
-  loadFormConfig()
-})
+  loadFormConfig();
+});
 
-const handleSubmit = (isValid, model) => {
+// 提交表单函数
+const submitForm = async () => {
+  const isValid = await smartFormRef.value.validateForm();
   if (isValid) {
-    console.log('表单提交:', model)
-    // 执行实际的提交逻辑
+    // 执行提交逻辑
+    handleSubmit(formData.value);
   }
-}
+};
+
+// 重置表单函数
+const resetForm = () => {
+  smartFormRef.value.resetForm();
+  handleCancel();
+};
+
+const handleSubmit = (values) => {
+  console.log("表单提交:", values);
+  // 执行实际的提交逻辑
+};
 
 const handleCancel = () => {
-  console.log('表单取消')
-  // 执行取消逻辑
-}
+  console.log("表单重置");
+  // 执行重置逻辑
+};
 </script>
 
 <style scoped>
@@ -579,9 +748,12 @@ const handleCancel = () => {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 </style>
-```
 ```

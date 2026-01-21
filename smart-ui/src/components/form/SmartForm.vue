@@ -23,7 +23,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, useAttrs } from 'vue'
 import { useFormEngine } from '../../core/useFormEngine'
 import ElementForm from '../../adapters/element/Form.vue'
 import AntForm from '../../adapters/ant/Form.vue'
@@ -39,7 +39,10 @@ const props = withDefaults(defineProps<SmartFormProps>(), {
   fields: () => [],
 })
 
-
+/**
+ * 获取所有未声明为 props 的属性
+ */
+const attrs = useAttrs()
 
 /**
  * 当前使用的适配器
@@ -48,13 +51,15 @@ const currentAdapter = computed(() => resolveAdapter(props.adapter))
 
 /**
  * 表单引擎（UI 无关）
+ * 
+ * 合并 props 和 attrs，确保所有用户传递的属性都能被正确处理
  */
 const {
   formProps,
   registerField,
   unregisterField
-} = useFormEngine(props)
-console.log('SmartForm merged props:', props)
+} = useFormEngine(Object.assign({}, props, attrs))
+console.log('SmartForm merged props:', formProps)
 
 /**
  * 底层表单组件引用
@@ -70,11 +75,9 @@ const formComponent = computed(() => {
     : ElementForm
 })
 
-const mergedFormProps = computed(() => ({
-  ...formProps.value,
+const mergedFormProps = computed(() => Object.assign({}, formProps.value, {
   class: 'smart-form'
 }))
-console.log('mergedFormProps:', mergedFormProps.value)
 
 
 /**
