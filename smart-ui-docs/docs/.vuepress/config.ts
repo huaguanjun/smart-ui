@@ -9,7 +9,7 @@ export default defineUserConfig({
   lang: 'zh-CN',
   title: 'Smart UI',
   description: '一个基于 Vue 3 的智能 UI 组件库',
-  base: '/docs/',
+  base: './',
 
   /**
    * bundler 配置（vite）
