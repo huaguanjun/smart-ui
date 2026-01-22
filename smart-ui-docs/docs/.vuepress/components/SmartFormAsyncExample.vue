@@ -308,7 +308,7 @@ async function loadDepartmentOptions() {
 const handleSubmit = async () => {
   if (smartFormRef.value) {
     try {
-      const isValid = await smartFormRef.value.validateForm();
+      const isValid = await smartFormRef.value.validate();
       if (isValid) {
         submitResult.value = JSON.stringify(formData.value, null, 2);
         // console.log('表单提交:', formData.value)
@@ -325,7 +325,7 @@ const handleSubmit = async () => {
 // 表单重置处理
 const handleReset = () => {
   if (smartFormRef.value) {
-    smartFormRef.value.resetForm();
+    smartFormRef.value.resetFields();
     submitResult.value = "";
     console.log("表单已重置");
   }

@@ -127,7 +127,7 @@ const handleReset = () => {
 // 提交表单函数
 const smartFormRef = ref(null)
 const submitForm = async () => {
-  const isValid = await smartFormRef.value.validateForm()
+  const isValid = await smartFormRef.value.validate()
   if (isValid) {
     // 执行提交逻辑
     handleSubmit(formData.value)
@@ -136,7 +136,7 @@ const submitForm = async () => {
 
 // 重置表单函数
 const resetForm = () => {
-  smartFormRef.value.resetForm()
+  smartFormRef.value.resetFields()
 }
 </script>
 ```
@@ -196,23 +196,25 @@ SmartForm 支持传递 Element Plus 和 Ant Design Vue 的所有官方属性，�
 
 ### 接口设计
 
-SmartForm 使用简洁的接口设计，将属性分为核心属性和扩展属性：
+SmartForm 采用了分层的接口设计，将属性分为核心属性和扩展属性，兼顾了类型安全和灵活性：
 
-#### SmartFormCoreProps（核心属性）
+#### 核心接口设计
 
-定义表单必须的核心属性，确保表单的基本功能：
+##### SmartFormCoreProps（核心属性）
+
+定义表单必须的核心属性，确保表单的基本功能，这些属性是所有 UI 库通用的：
 
 ```typescript
 interface SmartFormCoreProps {
-  adapter?: 'element' | 'ant'     // UI 适配器
-  model: Record<string, any>       // 表单数据模型
-  rules?: Record<string, any[]>    // 验证规则
-  fields?: FieldConfig[]           // 字段配置
-  itemSpan?: number                // 通用的字段 span 值
+  adapter?: 'element' | 'ant'     // UI 适配器，决定使用哪个 UI 库
+  model: Record<string, any>       // 表单数据模型，双向绑定
+  rules?: Record<string, any[]>    // 表单验证规则
+  fields?: FieldConfig[]           // 字段配置，定义表单的结构
+  itemSpan?: number                // 通用的字段 span 值，用于布局
 }
 ```
 
-#### SmartFormProps（完整属性接口）
+##### SmartFormProps（完整属性接口）
 
 继承核心属性并支持索引签名，允许传递任何官方 UI 库属性：
 
@@ -223,20 +225,65 @@ interface SmartFormProps extends SmartFormCoreProps {
 }
 ```
 
-#### 属性转发机制
+#### 接口设计优势
 
-SmartForm 通过以下方式实现属性转发：
+1. **类型安全**：核心属性有明确的类型定义，提供良好的开发体验和类型检查
+2. **灵活扩展**：支持传递任何官方 UI 库属性，无需修改组件代码
+3. **跨库兼容**：同一套接口可以用于不同的 UI 库
+4. **清晰的 API 边界**：核心属性和扩展属性分离，便于理解和使用
+5. **向后兼容**：新增属性不会破坏现有代码
 
-1. **props 接收**：定义核心属性
-2. **attrs 接收**：通过 `useAttrs()` 接收所有未声明的属性
-3. **Object.assign 合并**：使用 `Object.assign({}, props, attrs)` 合并所有属性
-4. **filterUndefinedProps 过滤**：过滤掉 `undefined` 属性，只传递有值的属性
+#### 属性转发机制实现
 
-这种设计确保：
-- ✅ 类型安全：核心属性有明确的类型定义
-- ✅ 灵活扩展：支持传递任何官方 UI 库属性
-- ✅ 性能优化：只传递有值的属性，减少不必要的属性传递
-- ✅ 跨库兼容：自动处理不同 UI 库的属性映射
+SmartForm 的属性转发机制确保了所有属性能够正确传递到底层 UI 组件：
+
+1. **在 SmartForm.vue 中**：
+   - 通过 `defineProps<SmartFormProps>()` 接收核心属性
+   - 通过 `useAttrs()` 接收所有未声明的扩展属性
+   - 使用 `Object.assign({}, props, attrs)` 合并所有属性
+   - 将合并后的属性传递给 `useFormEngine` 进行处理
+
+2. **在 useFormEngine.ts 中**：
+   - 接收合并后的属性
+   - 过滤掉值为 `undefined` 的属性
+   - 根据当前使用的 UI 库，对属性进行必要的转换
+   - 返回处理后的属性，供 SmartForm 组件使用
+
+3. **在适配器组件中**（如 ElementForm.vue、AntForm.vue）：
+   - 再次使用 `useAttrs()` 接收从 SmartForm 传递过来的所有属性
+   - 使用 `Object.assign({}, attrs, props)` 合并属性
+   - 将最终属性传递给底层 UI 组件（如 `el-form` 或 `a-form`）
+
+#### 属性处理机制
+
+SmartForm 采用了一套完整的属性处理机制，确保属性能够正确传递到底层 UI 组件：
+
+#### 属性合并与过滤
+
+1. **核心属性定义**：通过 `SmartFormCoreProps` 定义表单必须的核心属性
+2. **扩展属性接收**：通过 `useAttrs()` 接收所有未声明为 props 的属性
+3. **属性合并**：使用 `Object.assign({}, props, attrs)` 合并核心属性和扩展属性
+4. **过滤 undefined 属性**：通过 `filterUndefinedProps` 函数过滤掉值为 `undefined` 的属性，只传递有实际值的属性
+5. **UI 适配器处理**：根据当前使用的 UI 库，对属性进行必要的转换和兼容处理
+
+#### 属性优先级
+
+属性遵循以下优先级顺序（从高到低）：
+
+1. **typeProps**：组件原生属性配置，具有最高优先级，会覆盖所有其他配置
+2. **UI 适配器转换后的属性**：经过适配器转换的属性
+3. **attrs 传递的属性**：通过 `useAttrs()` 接收的属性
+4. **props 传递的核心属性**：通过 `defineProps` 接收的核心属性
+5. **组件内置默认属性**：组件内置的基础属性
+
+#### 设计优势
+
+这种设计确保了：
+- ✅ **类型安全**：核心属性有明确的类型定义
+- ✅ **灵活扩展**：支持传递任何官方 UI 库属性
+- ✅ **性能优化**：只传递有实际值的属性，减少不必要的属性传递
+- ✅ **跨库兼容**：自动处理不同 UI 库的属性映射
+- ✅ **属性优先级清晰**：确保属性覆盖规则明确，避免冲突
 
 ### FieldConfig
 
@@ -450,13 +497,16 @@ SmartForm 支持 Element Plus 和 Ant Design Vue 的官方事件，这些事件�
 
 ### 支持的事件
 
-| 事件名         | 类型                                                                           | 说明               |
-| -------------- | ------------------------------------------------------------------------------ | ------------------ |
-| onFinish       | `(values: Record<string, any>) => void`                                        | 表单验证成功后触发 |
-| onFinishFailed | `(errorInfo: any) => void`                                                     | 表单验证失败后触发 |
-| onValuesChange | `(changedValues: Record<string, any>, allValues: Record<string, any>) => void` | 表单值变化时触发   |
-| onReset        | `() => void`                                                                   | 表单重置时触发     |
-| onFieldsChange | `(changedFields: any[], allFields: any[]) => void`                             | 字段状态变化时触发 |
+SmartForm 支持以下事件：
+
+| 事件名         | 类型                                                                           | 说明               | 支持的UI库         |
+| -------------- | ------------------------------------------------------------------------------ | ------------------ | ------------------ |
+| onFinish       | `(values: Record<string, any>) => void`                                        | 表单验证成功后触发 | Element Plus, Ant Design Vue |
+| onFinishFailed | `(errorInfo: any) => void`                                                     | 表单验证失败后触发 | Element Plus, Ant Design Vue |
+| onValuesChange | `(changedValues: Record<string, any>, allValues: Record<string, any>) => void` | 表单值变化时触发   | Element Plus, Ant Design Vue |
+| onReset        | `() => void`                                                                   | 表单重置时触发     | Element Plus, Ant Design Vue |
+| onFieldsChange | `(changedFields: any[], allFields: any[]) => void`                             | 字段状态变化时触发 | Element Plus, Ant Design Vue |
+| onValidate     | `(prop: string, isValid: boolean, message: string) => void`                    | 字段验证状态变化时触发 | Element Plus |
 
 ### 事件使用示例
 
@@ -468,8 +518,15 @@ SmartForm 支持 Element Plus 和 Ant Design Vue 的官方事件，这些事件�
     :rules="rules"
     @onFinish="handleFinish"
     @onValuesChange="handleValuesChange"
+    @onReset="handleReset"
   >
     <!-- 表单内容 -->
+    <template #default>
+      <div class="form-actions">
+        <button type="button" @click="submitForm">提交</button>
+        <button type="button" @click="resetForm">重置</button>
+      </div>
+    </template>
   </smart-form>
 </template>
 
@@ -486,12 +543,29 @@ const rules = ref({
   email: [{ required: true, message: "请输入邮箱", trigger: "blur" }],
 });
 
+const smartFormRef = ref(null);
+
 const handleFinish = (values) => {
   console.log("表单提交:", values);
 };
 
 const handleValuesChange = (changedValues, allValues) => {
   console.log("值变化:", changedValues, allValues);
+};
+
+const handleReset = () => {
+  console.log("表单重置");
+};
+
+const submitForm = async () => {
+  const isValid = await smartFormRef.value.validate();
+  if (isValid) {
+    handleFinish(formData.value);
+  }
+};
+
+const resetForm = () => {
+  smartFormRef.value.resetFields();
 };
 </script>
 ```
@@ -578,15 +652,37 @@ allowClear: true, // 适配器会自动处理兼容性 } } ])
 
 ## 外部方法调用
 
-SmartForm 组件通过 `defineExpose` 暴露了一些方法，允许您通过 ref 直接调用表单的验证和重置功能。
+SmartForm 组件通过 `defineExpose` 暴露了底层 UI 组件的方法，允许您通过 ref 直接调用表单的验证、重置等功能。
 
-### 暴露的方法
+### 根据UI库动态暴露方法
+
+SmartForm 会根据当前使用的 UI 库，动态暴露相应的方法：
+
+#### 通用方法（所有UI库支持）
 
 | 方法名        | 类型                                 | 说明                       |
 | ------------- | ------------------------------------ | -------------------------- |
-| validateForm  | `() => Promise<boolean>`             | 验证整个表单，返回验证结果 |
+| validate      | `() => Promise<boolean>`             | 验证整个表单，返回验证结果 |
 | validateField | `(name: string) => Promise<boolean>` | 验证单个字段，返回验证结果 |
-| resetForm     | `() => void`                         | 重置表单数据               |
+| resetFields   | `() => void`                         | 重置表单数据               |
+| scrollToField | `(fieldName: string) => void`        | 滚动到指定字段             |
+| clearValidate | `(fieldName?: string) => void`       | 清除指定字段的验证状态     |
+
+#### Element Plus特有方法
+
+| 方法名           | 类型                                  | 说明                       |
+| ---------------- | ------------------------------------- | -------------------------- |
+| fields           | `() => FormItemInstance[]`            | 获取所有字段实例           |
+| getField         | `(name: string) => FormItemInstance`  | 获取指定字段实例           |
+| setInitialValues | `(values: Record<string, any>) => void` | 设置表单初始值             |
+
+#### Ant Design Vue特有方法
+
+| 方法名        | 类型                                 | 说明                       |
+| ------------- | ------------------------------------ | -------------------------- |
+| validateFields | `(names?: string[]) => Promise<any>` | 验证指定字段，返回字段值   |
+| getFieldsValue | `(names?: string[]) => any`          | 获取指定字段的值           |
+| setFieldsValue | `(values: Record<string, any>) => void` | 设置表单字段值             |
 
 ### 使用示例
 
@@ -653,7 +749,7 @@ const fields = ref([
 
 // 外部调用表单验证
 const validateForm = async () => {
-  const isValid = await smartFormRef.value.validateForm();
+  const isValid = await smartFormRef.value.validate();
   if (isValid) {
     console.log("表单验证通过！");
   } else {
@@ -673,7 +769,7 @@ const validateUsername = async () => {
 
 // 外部调用表单重置
 const resetForm = () => {
-  smartFormRef.value.resetForm();
+  smartFormRef.value.resetFields();
   console.log("表单已重置！");
 };
 </script>
@@ -775,7 +871,7 @@ onMounted(() => {
 
 // 提交表单函数
 const submitForm = async () => {
-  const isValid = await smartFormRef.value.validateForm();
+  const isValid = await smartFormRef.value.validate();
   if (isValid) {
     // 执行提交逻辑
     handleSubmit(formData.value);
@@ -784,7 +880,7 @@ const submitForm = async () => {
 
 // 重置表单函数
 const resetForm = () => {
-  smartFormRef.value.resetForm();
+  smartFormRef.value.resetFields();
   handleCancel();
 };
 

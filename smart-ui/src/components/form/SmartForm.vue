@@ -79,50 +79,43 @@ const mergedFormProps = computed(() => Object.assign({}, formProps.value, {
 
 
 /**
- * 验证整个表单
- */
-const validateForm = async (): Promise<boolean> => {
-  if (!formRef.value) return true
-  
-  try {
-    return await formRef.value.validate()
-  } catch (error) {
-    return false
-  }
-}
-
-/**
- * 验证单个字段
- */
-const validateField = async (name: string): Promise<boolean> => {
-  if (!formRef.value) return true
-  
-  try {
-    return await formRef.value.validateField(name)
-  } catch (error) {
-    return false
-  }
-}
-
-/**
- * 重置表单
- */
-const resetForm = () => {
-  if (formRef.value) {
-    formRef.value.resetFields()
-  }
-}
-
-/**
  * 对外暴露能力
+ * 
+ * 根据当前使用的 UI 库，暴露相应的方法
  */
+function call(method: string, ...args: any[]) {
+  const form = formRef.value as any
+  return form?.[method]?.(...args)
+}
+
 defineExpose({
+  // 通用
   registerField,
   unregisterField,
-  validateField,
-  validateForm,
-  resetForm
+
+  validate: (...args: any[]) => call('validate', ...args),
+  validateField: (...args: any[]) => call('validateField', ...args),
+  resetFields: (...args: any[]) => call('resetFields', ...args),
+  scrollToField: (...args: any[]) => call('scrollToField', ...args),
+  clearValidate: (...args: any[]) => call('clearValidate', ...args),
+
+  // Element Plus only
+  fields: () =>
+    currentAdapter.value === 'element'
+      ? call('fields')
+      : undefined,
+
+  getField: (name: string) =>
+    currentAdapter.value === 'element'
+      ? call('getField', name)
+      : undefined,
+
+  setInitialValues: (values: any) =>
+    currentAdapter.value === 'element'
+      ? call('setInitialValues', values)
+      : undefined
 })
+
 </script>
 
 <script lang="ts">

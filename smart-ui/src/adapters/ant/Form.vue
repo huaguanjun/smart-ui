@@ -114,6 +114,12 @@ defineExpose({
 
   resetFields() {
     formRef.value?.resetFields()
+  },
+  scrollToField(fieldName: string) {
+    formRef.value?.scrollToField(fieldName)
+  },
+  clearValidate(fieldName?: string) {
+    formRef.value?.clearValidate(fieldName)
   }
 })
 </script>

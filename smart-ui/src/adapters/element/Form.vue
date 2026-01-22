@@ -98,6 +98,26 @@ defineExpose({
 
   resetFields() {
     formRef.value?.resetFields()
+  },
+
+  scrollToField(fieldName: string) {
+    formRef.value?.scrollToField(fieldName)
+  },
+
+  clearValidate(fieldName?: string) {
+    formRef.value?.clearValidate(fieldName)
+  },
+
+  fields() {
+    return formRef.value?.fields
+  },
+
+  getField(fieldName: string) {
+    return formRef.value?.getField(fieldName)
+  },
+  
+  setInitialValues(values: Record<string, any>) {
+    formRef.value?.setInitialValues(values)
   }
 })
 </script>
