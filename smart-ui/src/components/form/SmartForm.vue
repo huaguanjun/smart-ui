@@ -59,8 +59,6 @@ const {
   registerField,
   unregisterField
 } = useFormEngine(Object.assign({}, props, attrs))
-console.log('SmartForm merged props:', formProps)
-
 /**
  * 底层表单组件引用
  */

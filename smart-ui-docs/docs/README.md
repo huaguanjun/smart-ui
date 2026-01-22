@@ -182,6 +182,6 @@ Smart UI 采用 MIT 许可证，您可以自由使用、修改和分发。
 
 ## 📞 联系方式
 
-- GitHub: [https://github.com/your-repo/smart-ui](https://github.com/your-repo/smart-ui)
-- 文档: [https://your-docs-site.com](https://your-docs-site.com)
-- 社区: [https://your-community.com](https://your-community.com)
+- GitHub: [https://github.com/huaguanjun/smart-ui](https://github.com/huaguanjun/smart-ui)
+- 文档: [https://example.com/smart-ui-docs](https://example.com/smart-ui-docs)
+- 社区: [https://example.com/smart-ui-community](https://example.com/smart-ui-community)

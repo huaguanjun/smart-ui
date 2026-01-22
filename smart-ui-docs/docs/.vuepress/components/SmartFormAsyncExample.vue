@@ -33,7 +33,7 @@
             重置
           </button>
           <button
-            type="submit"
+            type="button"
             class="form-btn submit-btn"
             @click="handleSubmit"
             html-type="submit"
@@ -351,15 +351,20 @@ const formBind = computed(() => {
     adapter: adapter.value,
     model: formData.value,
     fields: fields.value,
-    rules: rules.value, 
+    rules: rules.value,
     labelPosition: "right",
     labelWidth: "80px",
     inline: false,
     disabled: false,
     itemSpan: 12,
+    scrollToError: true,
+    scrollToFirstError: {
+      behavior: "smooth",
+      block: "center",
+    },
     onSubmit: (e) => {
-      console.log(e)
-    }
+      console.log(e);
+    },
   };
 });
 // 组件挂载时加载部门选项

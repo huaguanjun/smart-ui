@@ -6,7 +6,9 @@ SmartForm 是 Smart UI 的核心表单组件，通过配置化的方式快速生
 
 ## Props
 
-### 基本属性
+SmartForm 使用简洁的接口设计，支持传递 Element Plus 和 Ant Design Vue 的所有官方属性。
+
+### 核心属性
 
 | 属性名 | 类型 | 说明 | 默认值 |
 |-------|------|------|-------|
@@ -14,65 +16,65 @@ SmartForm 是 Smart UI 的核心表单组件，通过配置化的方式快速生
 | fields | `FieldConfig[]` | 表单字段配置数组 | `[]` |
 | rules | `Record<string, any[]>` | 表单验证规则 | `{}` |
 | adapter | `'element' \| 'ant'` | UI 适配器 | `'element'` |
-| inline | `boolean` | 是否内联表单 | `false` |
-| layout | `'horizontal' \| 'vertical' \| 'inline'` | 表单布局 | `'horizontal'` |
-| size | `'small' \| 'medium' \| 'large'` | 表单尺寸 | `'medium'` |
-| disabled | `boolean` | 是否禁用整个表单 | `false` |
-
-### 标签相关
-
-| 属性名 | 类型 | 说明 | 默认值 |
-|-------|------|------|-------|
-| labelWidth | `string \| number` | 标签宽度 | - |
-| labelPosition | `'left' \| 'right' \| 'top'` | 标签位置 | `'left'` |
-| labelAlign | `'left' \| 'right'` | 标签对齐方式 | - |
-| labelCol | `Record<string, any>` | 标签列布局配置 | - |
-| wrapperCol | `Record<string, any>` | 内容列布局配置 | - |
-| labelWrap | `boolean` | 标签是否换行 | - |
-| wrapperWrap | `boolean` | 内容是否换行 | - |
-| colon | `boolean` | 是否显示标签冒号 | - |
-
-### 必填项相关
-
-| 属性名 | 类型 | 说明 | 默认值 |
-|-------|------|------|-------|
-| hideRequiredAsterisk | `boolean` | 是否隐藏必填项星号 | - |
-| requireAsteriskPosition | `'left' \| 'right'` | 必填项星号位置 | - |
-| requiredMark | `'left' \| 'right' \| boolean` | 必填标记配置 | - |
-
-### 验证相关
-
-| 属性名 | 类型 | 说明 | 默认值 |
-|-------|------|------|-------|
-| rules | `Record<string, any[]>` | 表单验证规则 | `{}` |
-| showMessage | `boolean` | 是否显示验证信息 | - |
-| inlineMessage | `boolean` | 是否行内显示验证信息 | - |
-| statusIcon | `boolean` | 是否显示验证状态图标 | - |
-| validateOnRuleChange | `boolean` | 规则变化时是否触发验证 | - |
-| validateTrigger | `string \| string[]` | 验证触发方式 | - |
-| validateFirst | `boolean` | 是否只显示第一个验证错误 | - |
-| preserve | `boolean` | 是否保留字段值 | - |
-
-### 布局相关
-
-| 属性名 | 类型 | 说明 | 默认值 |
-|-------|------|------|-------|
 | itemSpan | `number` | 通用的字段 span 值 | - |
 
-### 交互相关
+### 传递官方属性
 
-| 属性名 | 类型 | 说明 | 默认值 |
-|-------|------|------|-------|
-| autoFocusFirstField | `boolean` | 是否自动聚焦第一个字段 | - |
-| scrollToError | `boolean` | 验证失败时是否滚动到错误字段 | - |
-| scrollToFirstError | `boolean` | 验证失败时是否滚动到第一个错误字段 | - |
-| scrollIntoViewOptions | `object \| boolean` | 滚动选项配置 | - |
+SmartForm 支持传递 Element Plus 和 Ant Design Vue 的所有官方属性，无需额外配置：
 
-### 其他属性
+```vue
+<smart-form
+  :model="formData"
+  :fields="fields"
+  :rules="rules"
+  
+  <!-- Element Plus / Ant Design Vue 官方属性 -->
+  layout="horizontal"
+  :labelCol="{ span: 8 }"
+  :wrapperCol="{ span: 16 }"
+  :validateTrigger="['blur', 'change']"
+  :scrollToFirstError="true"
+  size="medium"
+  disabled={false}
+  
+  @onFinish="handleFinish"
+>
+  <!-- 表单内容 -->
+</smart-form>
+```
 
-| 属性名 | 类型 | 说明 | 默认值 |
-|-------|------|------|-------|
-| [key: string] | `any` | 传递给底层表单组件的其他属性 | - |
+### 完整属性支持
+
+由于 SmartForm 使用索引签名（`[key: string]: any`），您可以传递任何官方属性：
+
+- **布局属性**：inline、layout、labelWidth、labelPosition、labelCol、wrapperCol
+- **标签属性**：labelAlign、labelWrap、wrapperWrap、colon、labelSuffix
+- **验证属性**：validateTrigger、validateFirst、validateOnRuleChange、showMessage、inlineMessage、statusIcon
+- **必填标记**：hideRequiredAsterisk、requireAsteriskPosition、requiredMark
+- **交互属性**：autoFocusFirstField、scrollToError、scrollToFirstError、scrollIntoViewOptions
+- **尺寸属性**：size
+- **禁用状态**：disabled
+- **其他属性**：name、initialValues、messageCol、preserve
+
+### 接口设计
+
+SmartForm 使用简洁的接口设计：
+
+```typescript
+// 核心属性接口
+interface SmartFormCoreProps {
+  adapter?: 'element' | 'ant'
+  model: Record<string, any>
+  rules?: Record<string, any[]>
+  fields?: FieldConfig[]
+  itemSpan?: number
+}
+
+// 完整属性接口，支持索引签名
+interface SmartFormProps extends SmartFormCoreProps {
+  [key: string]: any
+}
+```
 
 ## FieldConfig 类型
 

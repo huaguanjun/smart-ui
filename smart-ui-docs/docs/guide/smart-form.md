@@ -3,7 +3,6 @@
 SmartForm 是 Smart UI 的核心组件之一，它可以通过简单的 JS 配置自动生成复杂的表单。
 
 ## 基本用法
-
 <SmartFormAsyncExample />
 ```vue
 <template>
@@ -145,38 +144,99 @@ const resetForm = () => {
 
 ### SmartForm Props
 
+SmartForm 使用简洁的接口设计，支持传递 Element Plus 和 Ant Design Vue 的所有官方属性。
+
+#### 核心属性
+
 | 属性名 | 类型 | 说明 | 默认值 |
 |-------|------|------|-------|
 | model | `Record<string, any>` | 表单数据模型 | `{}` |
 | fields | `FieldConfig[]` | 表单字段配置 | `[]` |
 | rules | `Record<string, any[]>` | 表单验证规则 | `{}` |
 | adapter | `'element' \| 'ant'` | UI 适配器 | `'element'` |
-| inline | `boolean` | 是否内联表单 | `false` |
-| layout | `'horizontal' \| 'vertical' \| 'inline'` | 表单布局 | `'horizontal'` |
-| labelWidth | `string \| number` | 标签宽度 | - |
-| labelPosition | `'left' \| 'right' \| 'top'` | 标签位置 | `'left'` |
-| labelAlign | `'left' \| 'right'` | 标签对齐方式 | - |
-| labelCol | `Record<string, any>` | 标签列布局配置 | - |
-| wrapperCol | `Record<string, any>` | 内容列布局配置 | - |
-| labelWrap | `boolean` | 标签是否换行 | - |
-| wrapperWrap | `boolean` | 内容是否换行 | - |
-| colon | `boolean` | 是否显示标签冒号 | - |
-| hideRequiredAsterisk | `boolean` | 是否隐藏必填项星号 | - |
-| requireAsteriskPosition | `'left' \| 'right'` | 必填项星号位置 | - |
-| requiredMark | `'left' \| 'right' \| boolean` | 必填标记配置 | - |
-| showMessage | `boolean` | 是否显示验证信息 | - |
-| inlineMessage | `boolean` | 是否行内显示验证信息 | - |
-| statusIcon | `boolean` | 是否显示验证状态图标 | - |
-| validateOnRuleChange | `boolean` | 规则变化时是否触发验证 | - |
-| validateTrigger | `string \| string[]` | 验证触发方式 | - |
-| validateFirst | `boolean` | 是否只显示第一个验证错误 | - |
-| autoFocusFirstField | `boolean` | 是否自动聚焦第一个字段 | - |
-| scrollToError | `boolean` | 验证失败时是否滚动到错误字段 | - |
-| scrollToFirstError | `boolean` | 验证失败时是否滚动到第一个错误字段 | - |
-| scrollIntoViewOptions | `object \| boolean` | 滚动选项配置 | - |
-| size | `'small' \| 'medium' \| 'large'` | 表单大小 | `'medium'` |
-| disabled | `boolean` | 是否禁用表单 | `false` |
 | itemSpan | `number` | 通用的字段 span 值 | - |
+
+#### 传递官方属性
+
+SmartForm 支持传递 Element Plus 和 Ant Design Vue 的所有官方属性，无需额外配置：
+
+```vue
+<smart-form
+  :model="formData"
+  :fields="fields"
+  :rules="rules"
+  
+  <!-- Element Plus / Ant Design Vue 官方属性 -->
+  layout="horizontal"
+  :labelCol="{ span: 8 }"
+  :wrapperCol="{ span: 16 }"
+  :validateTrigger="['blur', 'change']"
+  :scrollToFirstError="true"
+  size="medium"
+  disabled={false}
+  
+  @onFinish="handleFinish"
+>
+  <!-- 表单内容 -->
+</smart-form>
+```
+
+#### 完整属性支持
+
+由于 SmartForm 使用索引签名（`[key: string]: any`），您可以传递任何官方属性：
+
+- **布局属性**：inline、layout、labelWidth、labelPosition、labelCol、wrapperCol
+- **标签属性**：labelAlign、labelWrap、wrapperWrap、colon、labelSuffix
+- **验证属性**：validateTrigger、validateFirst、validateOnRuleChange、showMessage、inlineMessage、statusIcon
+- **必填标记**：hideRequiredAsterisk、requireAsteriskPosition、requiredMark
+- **交互属性**：autoFocusFirstField、scrollToError、scrollToFirstError、scrollIntoViewOptions
+- **尺寸属性**：size
+- **禁用状态**：disabled
+- **其他属性**：name、initialValues、messageCol、preserve
+
+### 接口设计
+
+SmartForm 使用简洁的接口设计，将属性分为核心属性和扩展属性：
+
+#### SmartFormCoreProps（核心属性）
+
+定义表单必须的核心属性，确保表单的基本功能：
+
+```typescript
+interface SmartFormCoreProps {
+  adapter?: 'element' | 'ant'     // UI 适配器
+  model: Record<string, any>       // 表单数据模型
+  rules?: Record<string, any[]>    // 验证规则
+  fields?: FieldConfig[]           // 字段配置
+  itemSpan?: number                // 通用的字段 span 值
+}
+```
+
+#### SmartFormProps（完整属性接口）
+
+继承核心属性并支持索引签名，允许传递任何官方 UI 库属性：
+
+```typescript
+interface SmartFormProps extends SmartFormCoreProps {
+  // 支持 Element Plus 和 Ant Design Vue 的所有官方属性
+  [key: string]: any
+}
+```
+
+#### 属性转发机制
+
+SmartForm 通过以下方式实现属性转发：
+
+1. **props 接收**：定义核心属性
+2. **attrs 接收**：通过 `useAttrs()` 接收所有未声明的属性
+3. **Object.assign 合并**：使用 `Object.assign({}, props, attrs)` 合并所有属性
+4. **filterUndefinedProps 过滤**：过滤掉 `undefined` 属性，只传递有值的属性
+
+这种设计确保：
+- ✅ 类型安全：核心属性有明确的类型定义
+- ✅ 灵活扩展：支持传递任何官方 UI 库属性
+- ✅ 性能优化：只传递有值的属性，减少不必要的属性传递
+- ✅ 跨库兼容：自动处理不同 UI 库的属性映射
 
 ### FieldConfig
 
@@ -440,7 +500,19 @@ const handleValuesChange = (changedValues, allValues) => {
 
 SmartForm 通过适配器模式处理不同 UI 库的属性映射，确保您可以使用统一的 API 构建跨 UI 兼容的表单。
 
-### 属性映射机制
+### 属性转发机制
+
+SmartForm 使用以下方式实现跨 UI 兼容性：
+
+1. **核心属性处理**：通过 `SmartFormCoreProps` 定义核心属性
+2. **扩展属性接收**：通过 `useAttrs()` 接收所有未声明的属性
+3. **属性合并**：使用 `Object.assign({}, props, attrs)` 合并所有属性
+4. **过滤 undefined**：通过 `filterUndefinedProps` 过滤掉 `undefined` 属性
+5. **UI 适配器处理**：
+   - **Element Plus**：直接透传所有属性
+   - **Ant Design Vue**：通过 `convertToAntFormProps` 转换属性
+
+### 属性映射
 
 SmartForm 会自动将通用属性转换为当前 UI 库的特定属性：
 
@@ -453,7 +525,7 @@ SmartForm 会自动将通用属性转换为当前 UI 库的特定属性：
 
 ### 直接使用官方属性
 
-您也可以直接使用 Element Plus 或 Ant Design Vue 的官方属性，SmartForm 会自动将它们传递给底层组件：
+由于 SmartForm 使用索引签名支持扩展属性，您可以直接使用 Element Plus 或 Ant Design Vue 的官方属性，无需额外配置：
 
 ```vue
 <template>

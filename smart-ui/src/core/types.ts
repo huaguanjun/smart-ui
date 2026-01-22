@@ -187,6 +187,12 @@ export interface SmartFormCoreProps {
 
 // 表单属性接口，继承核心属性并支持扩展
 export interface SmartFormProps extends SmartFormCoreProps {
+  // ant design vue form特有方法
+  onSubmit?: (values: Record<string, any>) => Promise<void> | void
+  onFinish?: (values: Record<string, any>) => Promise<void> | void
+  onFinishFailed?: (values: Record<string, any>) => Promise<void> | void
+  // ant element form共有方法
+  onValidate?: (values: Record<string, any>) => Promise<void> | void
   // 支持任意其他属性，包括 Element Plus 和 Ant Design Vue 的官方属性
   [key: string]: any
 }
