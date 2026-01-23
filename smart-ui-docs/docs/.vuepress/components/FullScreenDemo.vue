@@ -68,8 +68,8 @@ const menuItems = [
 // 响应式数据
 const showModal = ref(false)
 const adapter = ref('element')
-const clickX = ref(window.innerWidth / 2)
-const clickY = ref(window.innerHeight / 2)
+const clickX = ref(typeof window !== 'undefined' ? window.innerWidth / 2 : 500)
+const clickY = ref(typeof window !== 'undefined' ? window.innerHeight / 2 : 300)
 const menuKey = ref('form')
 
 // 处理弹窗打开，记录点击位置

@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "docs:dev": "vuepress dev docs",
-    "docs:build": "vuepress build docs"
+    "docs:build": "vuepress build docs",
+    "docs:deploy": "npm run docs:build && rm -rf ../docs && mv docs/.vuepress/dist ../docs"
   },
   "dependencies": {
     "ant-design-vue": "^4.2.6",

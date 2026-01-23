@@ -72,11 +72,11 @@ export default {
     },
     clickX: {
       type: Number,
-      default: window.innerWidth / 2
+      default: () => typeof window !== 'undefined' ? window.innerWidth / 2 : 500
     },
     clickY: {
       type: Number,
-      default: window.innerHeight / 2
+      default: () => typeof window !== 'undefined' ? window.innerHeight / 2 : 300
     },
     // 导航菜单数据 - 从外部传入
     menuItems: {
