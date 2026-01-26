@@ -1,7 +1,8 @@
 p {
   margin-top: 0;
-  margin-bottom: 0!important;
+  margin-bottom: 0 !important;
 }
+
 /* Table 样式重置 */
 .el-table table {
   border-collapse: collapse;
@@ -12,9 +13,11 @@ p {
   font-size: 14px;
   line-height: 1.5;
 }
+
 .el-table tr {
   border-top: none;
 }
+
 .el-table table th,
 .el-table table td {
   padding: 8px 12px;
@@ -24,3 +27,20 @@ p {
   margin: 0;
 }
 
+/* Ant Design Vue Rate 组件样式修复 */
+.vp-doc .ant-rate {
+  padding-left: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.vp-doc .ant-rate ul,
+.vp-doc .ant-rate ol {
+  padding-left: 0 !important;
+  margin: 0 !important;
+  list-style: none !important;
+}
+
+.vp-doc .ant-rate li+li {
+  margin-top: 0 !important;
+}

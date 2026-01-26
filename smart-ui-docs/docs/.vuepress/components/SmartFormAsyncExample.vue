@@ -29,24 +29,15 @@
 
         <!-- 合并的表单操作区域 -->
         <div class="form-primary-actions">
-          <button type="button" class="form-btn reset-btn" @click="handleReset">
+          <el-button type="default" @click="handleReset">
             重置
-          </button>
-          <button
-            type="button"
-            class="form-btn submit-btn"
-            @click="handleSubmit"
-            html-type="submit"
-          >
+          </el-button>
+          <el-button type="primary" @click="handleSubmit" native-type="submit">
             提交
-          </button>
-          <button
-            type="button"
-            class="demo-btn"
-            @click="handleValidateUsername"
-          >
+          </el-button>
+          <el-button type="success" @click="handleValidateUsername">
             单独验证用户名
-          </button>
+          </el-button>
         </div>
       </smart-form>
     </div>
@@ -118,7 +109,7 @@ const fields = ref([
   },
   {
     name: "bio",
-    label: "个人简介",
+    label: "个人简介1",
     type: "textarea",
     placeholder: "请输入个人简介",
     disabled: false,
@@ -165,7 +156,7 @@ const fields = ref([
     options: [
       { label: "阅读", value: "reading" },
       { label: "运动", value: "sports" },
-      { label: "音乐", value: "music" },
+      { label: "音乐1111", value: "music" },
       { label: "旅行", value: "travel" },
       { label: "编程", value: "coding" },
     ],
@@ -284,7 +275,7 @@ async function loadDepartmentOptions() {
 
     // 从服务端获取部门数据
     const departmentOptions = [
-      { label: "技术部", value: "tech" },
+      { label: "技术部1111", value: "tech" },
       { label: "产品部", value: "product" },
       { label: "设计部", value: "design" },
       { label: "市场部", value: "marketing" },
@@ -362,7 +353,7 @@ const formBind = computed(() => {
       behavior: "smooth",
       block: "center",
     },
-    onSubmit: (e) => {
+    onSubmit: (e: Event) => {
       console.log(e);
     },
   };
@@ -374,6 +365,11 @@ onMounted(() => {
 </script>
 
 <style scoped>
+::v-deep .vp-doc ul, .vp-doc ol {
+  padding-left: 0px!important;
+  margin-left: 0px!important;
+  list-style: none!important;
+}
 .smart-form-async-example {
   padding: 20px;
   background: white;
@@ -486,35 +482,6 @@ onMounted(() => {
   font-weight: 600;
 }
 
-.demo-buttons {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.demo-btn {
-  padding: 8px 16px;
-  background-color: #10b981;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  outline: none;
-}
-
-.demo-btn:hover {
-  background-color: #059669;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.demo-btn:active {
-  transform: translateY(0);
-}
-
 /* 主要操作按钮样式 */
 .form-primary-actions {
   margin-top: 24px;
@@ -522,73 +489,4 @@ onMounted(() => {
   gap: 16px;
   justify-content: center;
   flex-wrap: wrap;
-}
-
-/* 通用按钮样式 */
-.form-btn,
-.demo-btn {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  outline: none;
-  min-width: 90px;
-  letter-spacing: 0.5px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-/* 重置按钮样式 */
-.reset-btn {
-  background: #6c757d;
-  color: white;
-}
-
-.reset-btn:hover {
-  background: #5a6268;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
-}
-
-/* 提交按钮样式 */
-.submit-btn {
-  background: #007bff;
-  color: white;
-}
-
-.submit-btn:hover {
-  background: #0056b3;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
-}
-
-/* 演示按钮样式 */
-.demo-btn {
-  background: #28a745;
-  color: white;
-  min-width: 120px;
-}
-
-.demo-btn:hover {
-  background: #218838;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
-}
-
-/* 按钮点击效果 */
-.form-btn:active,
-.demo-btn:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-}
-
-/* 演示按钮容器 */
-.demo-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 18px;
-  flex-wrap: wrap;
-}
-</style>
+}</style>
