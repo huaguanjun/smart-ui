@@ -6,20 +6,18 @@
     <div class="adapter-switcher">
       <label>UI 库：</label>
       <div class="switcher-buttons">
-        <button
-          type="button"
-          :class="['switch-btn', { active: adapter === 'element' }]"
+        <el-button
+          :type="adapter === 'element' ? 'primary' : 'default'"
           @click="adapter = 'element'"
         >
           Element Plus
-        </button>
-        <button
-          type="button"
-          :class="['switch-btn', { active: adapter === 'ant' }]"
+        </el-button>
+        <el-button
+          :type="adapter === 'ant' ? 'primary' : 'default'"
           @click="adapter = 'ant'"
         >
           Ant Design Vue
-        </button>
+        </el-button>
       </div>
     </div>
 
@@ -406,35 +404,6 @@ onMounted(() => {
 .switcher-buttons {
   display: flex;
   gap: 8px;
-}
-
-.switch-btn {
-  padding: 6px 16px;
-  border: 1px solid #dcdfe6;
-  background: #fff;
-  color: #606266;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: all 0.3s;
-  outline: none;
-}
-
-.switch-btn:hover {
-  color: #409eff;
-  border-color: #c6e2ff;
-  background-color: #ecf5ff;
-}
-
-.switch-btn.active {
-  color: #fff;
-  background-color: #409eff;
-  border-color: #409eff;
-}
-
-.switch-btn.active:hover {
-  background-color: #66b1ff;
-  border-color: #66b1ff;
 }
 
 .submit-result {
