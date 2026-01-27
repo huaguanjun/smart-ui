@@ -1,0 +1,142 @@
+<template>
+  <div class="{{name}}-page">
+    <h1>{{name}}</h1>
+    
+    {{#if hasSearchForm}}
+    <{{name}}SearchForm 
+      @search="handleSearch"
+      @reset="handleReset"
+    />
+    {{/if}}
+    
+    {{#if hasTable}}
+    <{{name}}Table 
+      :data="tableData"
+      :loading="loading"
+      @edit="handleEdit"
+      @delete="handleDelete"
+    />
+    {{/if}}
+    
+    {{#if hasForm}}
+    <{{name}}Form 
+      v-if="dialogVisible"
+      :visible="dialogVisible"
+      :model="formData"
+      @submit="handleSubmit"
+      @cancel="handleCancel"
+    />
+    {{/if}}
+  </div>
+</template>
+
+<script setup>
+import { ref, onMounted } from 'vue';
+{{#if hasSearchForm}}
+import {{name}}SearchForm from './{{name}}SearchForm.vue';
+{{/if}}
+{{#if hasTable}}
+import {{name}}Table from './{{name}}Table.vue';
+{{/if}}
+{{#if hasForm}}
+import {{name}}Form from './{{name}}Form.vue';
+{{/if}}
+
+// 响应式数据
+const tableData = ref([]);
+const loading = ref(false);
+const dialogVisible = ref(false);
+const formData = ref({});
+const searchParams = ref({});
+
+// 生命周期
+onMounted(() => {
+  fetchData();
+});
+
+// 方法
+const fetchData = async () => {
+  loading.value = true;
+  try {
+    // 调用API获取数据
+    const response = await fetch('{{apiUrl}}', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(searchParams.value)
+    });
+    const data = await response.json();
+    tableData.value = data.data || [];
+  } catch (error) {
+    console.error('获取数据失败:', error);
+  } finally {
+    loading.value = false;
+  }
+};
+
+const handleSearch = (params) => {
+  searchParams.value = params;
+  fetchData();
+};
+
+const handleReset = () => {
+  searchParams.value = {};
+  fetchData();
+};
+
+const handleEdit = (row) => {
+  dialogVisible.value = true;
+  formData.value = { ...row };
+};
+
+const handleDelete = async (id) => {
+  try {
+    // 调用删除API
+    await fetch(`{{apiUrl}}/${id}`, {
+      method: 'DELETE'
+    });
+    fetchData();
+  } catch (error) {
+    console.error('删除失败:', error);
+  }
+};
+
+const handleSubmit = async (data) => {
+  try {
+    // 调用保存API
+    const method = formData.value.id ? 'PUT' : 'POST';
+    const url = formData.value.id ? `{{apiUrl}}/${formData.value.id}` : '{{apiUrl}}';
+    
+    await fetch(url, {
+      method,
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    });
+    
+    dialogVisible.value = false;
+    fetchData();
+  } catch (error) {
+    console.error('保存失败:', error);
+  }
+};
+
+const handleCancel = () => {
+  dialogVisible.value = false;
+  formData.value = {};
+};
+</script>
+
+<style scoped>
+.{{name}}-page {
+  padding: 20px;
+}
+
+h1 {
+  margin-bottom: 20px;
+  font-size: 18px;
+  font-weight: 600;
+}
+</style>

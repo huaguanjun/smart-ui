@@ -1,0 +1,99 @@
+<template>
+  <el-dialog
+    :title="title"
+    :model-value="visible"
+    @close="handleCancel"
+    width="500px"
+  >
+    <el-form
+      ref="formRef"
+      :model="model"
+      :rules="rules"
+      label-width="100px"
+    >
+      <!-- 自动生成表单项 -->
+      {{#each fields}}{{#if form}}
+      <el-form-item :label="label" :prop="field">
+        {{#if (eq type 'input')}}
+        <el-input v-model="model.{{field}}" placeholder="请输入{{label}}" />
+        {{/if}}
+        {{#if (eq type 'select')}}
+        <el-select v-model="model.{{field}}" placeholder="请选择{{label}}">
+          {{#each options}}
+          <el-option :label="label" :value="value" />
+          {{/each}}
+        </el-select>
+        {{/if}}
+        {{#if (eq type 'date')}}
+        <el-date-picker
+          v-model="model.{{field}}"
+          type="datetime"
+          placeholder="请选择{{label}}"
+          style="width: 100%"
+        />
+        {{/if}}
+        {{#if (eq type 'switch')}}
+        <el-switch v-model="model.{{field}}" />
+        {{/if}}
+      </el-form-item>
+      {{/if}}{{/each}}
+    </el-form>
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="handleCancel">取消</el-button>
+        <el-button type="primary" @click="handleSubmit">确定</el-button>
+      </span>
+    </template>
+  </el-dialog>
+</template>
+
+<script setup>
+import { ref, defineProps, defineEmits } from 'vue';
+
+// Props
+const props = defineProps({
+  visible: {
+    type: Boolean,
+    default: false
+  },
+  model: {
+    type: Object,
+    default: () => {}
+  }
+});
+
+// Emits
+const emit = defineEmits(['submit', 'cancel']);
+
+// 响应式数据
+const formRef = ref(null);
+const title = ref(props.model.id ? '编辑' : '新增');
+
+// 表单规则
+const rules = ref({
+  // 可根据字段配置自动生成规则
+});
+
+// 方法
+const handleSubmit = async () => {
+  if (!formRef.value) return;
+  
+  try {
+    await formRef.value.validate();
+    emit('submit', props.model);
+  } catch (error) {
+    console.error('表单验证失败:', error);
+  }
+};
+
+const handleCancel = () => {
+  emit('cancel');
+};
+</script>
+
+<style scoped>
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+</style>

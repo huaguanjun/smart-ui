@@ -1,0 +1,86 @@
+<template>
+  <el-form
+    :model="searchForm"
+    :inline="true"
+    class="search-form"
+  >
+    <!-- 自动生成搜索表单项 -->
+    {{#each fields}}{{#if search}}
+    <el-form-item :label="label">
+      {{#if (eq type 'input')}}
+      <el-input
+        v-model="searchForm.{{field}}"
+        placeholder="请输入{{label}}"
+        style="width: 180px"
+        @keyup.enter="handleSearch"
+      />
+      {{/if}}
+      {{#if (eq type 'select')}}
+      <el-select
+        v-model="searchForm.{{field}}"
+        placeholder="请选择{{label}}"
+        style="width: 180px"
+      >
+        {{#each options}}
+        <el-option :label="label" :value="value" />
+        {{/each}}
+      </el-select>
+      {{/if}}
+      {{#if (eq type 'date')}}
+      <el-date-picker
+        v-model="searchForm.{{field}}"
+        type="daterange"
+        range-separator="至"
+        start-placeholder="开始日期"
+        end-placeholder="结束日期"
+        style="width: 240px"
+      />
+      {{/if}}
+    </el-form-item>
+    {{/if}}{{/each}}
+    
+    <el-form-item>
+      <el-button type="primary" @click="handleSearch">
+        <el-icon><Search /></el-icon>
+        搜索
+      </el-button>
+      <el-button @click="handleReset">
+        <el-icon><Refresh /></el-icon>
+        重置
+      </el-button>
+    </el-form-item>
+  </el-form>
+</template>
+
+<script setup>
+import { ref, defineEmits } from 'vue';
+import { Search, Refresh } from '@element-plus/icons-vue';
+
+// Emits
+const emit = defineEmits(['search', 'reset']);
+
+// 响应式数据
+const searchForm = ref({});
+
+// 方法
+const handleSearch = () => {
+  emit('search', { ...searchForm.value });
+};
+
+const handleReset = () => {
+  // 重置表单
+  Object.keys(searchForm.value).forEach(key => {
+    searchForm.value[key] = '';
+  });
+  emit('reset');
+};
+</script>
+
+<style scoped>
+.search-form {
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: #f5f7fa;
+  border-radius: 4px;
+}
+</style>

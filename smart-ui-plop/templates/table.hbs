@@ -1,0 +1,84 @@
+<template>
+  <el-table :data="data" :loading="loading" style="width: 100%">
+    <!-- 自动生成列 -->
+    {{#each fields}}{{#if table}}
+    <el-table-column prop="{{field}}" label="{{label}}" width="180" />
+    {{/if}}{{/each}}
+    
+    <!-- 默认列 -->
+    <el-table-column label="操作" width="150" fixed="right">
+      <template #default="scope">
+        <el-button size="small" type="primary" @click="handleEdit(scope.row)">
+          编辑
+        </el-button>
+        <el-button size="small" type="danger" @click="handleDelete(scope.row.id)">
+          删除
+        </el-button>
+      </template>
+    </el-table-column>
+  </el-table>
+  
+  <!-- 分页 -->
+  <div class="pagination">
+    <el-pagination
+      v-model:current-page="currentPage"
+      v-model:page-size="pageSize"
+      :page-sizes="[10, 20, 50, 100]"
+      layout="total, sizes, prev, pager, next, jumper"
+      :total="total"
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+    />
+  </div>
+</template>
+
+<script setup>
+import { ref, defineProps, defineEmits } from 'vue';
+
+// Props
+const props = defineProps({
+  data: {
+    type: Array,
+    default: () => []
+  },
+  loading: {
+    type: Boolean,
+    default: false
+  }
+});
+
+// Emits
+const emit = defineEmits(['edit', 'delete']);
+
+// 分页数据
+const currentPage = ref(1);
+const pageSize = ref(10);
+const total = ref(0);
+
+// 方法
+const handleEdit = (row) => {
+  emit('edit', row);
+};
+
+const handleDelete = (id) => {
+  emit('delete', id);
+};
+
+const handleSizeChange = (size) => {
+  pageSize.value = size;
+  // 触发分页事件
+};
+
+const handleCurrentChange = (current) => {
+  currentPage.value = current;
+  // 触发分页事件
+};
+</script>
+
+<style scoped>
+.pagination {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+}
+</style>

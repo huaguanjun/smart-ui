@@ -1,0 +1,66 @@
+[
+  {
+    "label": "用户名",
+    "field": "username",
+    "type": "input",
+    "search": true,
+    "table": true,
+    "form": true
+  },
+  {
+    "label": "状态",
+    "field": "status",
+    "type": "select",
+    "options": [
+      {
+        "label": "启用",
+        "value": 1
+      },
+      {
+        "label": "禁用",
+        "value": 0
+      }
+    ],
+    "search": true,
+    "table": true,
+    "form": true
+  },
+  {
+    "label": "创建时间",
+    "field": "createdAt",
+    "type": "date",
+    "search": true,
+    "table": true,
+    "form": false
+  },
+  {
+    "label": "是否管理员",
+    "field": "isAdmin",
+    "type": "switch",
+    "search": false,
+    "table": true,
+    "form": true
+  },
+  {
+    "label": "角色",
+    "field": "role",
+    "type": "select",
+    "options": [
+      {
+        "label": "超级管理员",
+        "value": "super_admin"
+      },
+      {
+        "label": "管理员",
+        "value": "admin"
+      },
+      {
+        "label": "普通用户",
+        "value": "user"
+      }
+    ],
+    "search": true,
+    "table": true,
+    "form": true
+  }
+]

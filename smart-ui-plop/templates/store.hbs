@@ -1,0 +1,155 @@
+import { defineStore } from 'pinia';
+
+/**
+ * {{name}} Store
+ * 管理{{name}}相关状态
+ */
+export const use{{capitalize name}}Store = defineStore('{{name}}', {
+  state: () => ({
+    data: [],
+    loading: false,
+    error: null,
+    pagination: {
+      currentPage: 1,
+      pageSize: 10,
+      total: 0
+    }
+  }),
+  
+  getters: {
+    getData: (state) => state.data,
+    getLoading: (state) => state.loading,
+    getError: (state) => state.error,
+    getPagination: (state) => state.pagination
+  },
+  
+  actions: {
+    // 获取列表
+    async fetchList(params = {}) {
+      this.loading = true;
+      this.error = null;
+      
+      try {
+        const response = await fetch('{{apiUrl}}', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ ...params, ...this.pagination })
+        });
+        
+        const data = await response.json();
+        this.data = data.data || [];
+        this.pagination.total = data.total || 0;
+        
+        return data;
+      } catch (error) {
+        this.error = error.message;
+        console.error('获取数据失败:', error);
+        return null;
+      } finally {
+        this.loading = false;
+      }
+    },
+    
+    // 获取详情
+    async fetchDetail(id) {
+      this.loading = true;
+      this.error = null;
+      
+      try {
+        const response = await fetch(`{{apiUrl}}/${id}`);
+        const data = await response.json();
+        return data;
+      } catch (error) {
+        this.error = error.message;
+        console.error('获取详情失败:', error);
+        return null;
+      } finally {
+        this.loading = false;
+      }
+    },
+    
+    // 新增
+    async create(data) {
+      this.loading = true;
+      this.error = null;
+      
+      try {
+        const response = await fetch('{{apiUrl}}', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        });
+        
+        const result = await response.json();
+        // 重新获取列表
+        await this.fetchList();
+        return result;
+      } catch (error) {
+        this.error = error.message;
+        console.error('创建失败:', error);
+        return null;
+      } finally {
+        this.loading = false;
+      }
+    },
+    
+    // 更新
+    async update(id, data) {
+      this.loading = true;
+      this.error = null;
+      
+      try {
+        const response = await fetch(`{{apiUrl}}/${id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        });
+        
+        const result = await response.json();
+        // 重新获取列表
+        await this.fetchList();
+        return result;
+      } catch (error) {
+        this.error = error.message;
+        console.error('更新失败:', error);
+        return null;
+      } finally {
+        this.loading = false;
+      }
+    },
+    
+    // 删除
+    async delete(id) {
+      this.loading = true;
+      this.error = null;
+      
+      try {
+        const response = await fetch(`{{apiUrl}}/${id}`, {
+          method: 'DELETE'
+        });
+        
+        const result = await response.json();
+        // 重新获取列表
+        await this.fetchList();
+        return result;
+      } catch (error) {
+        this.error = error.message;
+        console.error('删除失败:', error);
+        return null;
+      } finally {
+        this.loading = false;
+      }
+    },
+    
+    // 设置分页
+    setPagination(pagination) {
+      this.pagination = { ...this.pagination, ...pagination };
+    }
+  }
+});
