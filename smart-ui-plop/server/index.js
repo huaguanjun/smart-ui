@@ -28,16 +28,17 @@ app.use(express.static(join(__dirname, '../dist')));
  *   hasSearchForm: boolean, // 是否需要搜索表单
  *   hasTable: boolean, // 是否需要表格
  *   hasForm: boolean, // 是否需要表单
- *   fields: string // 字段配置JSON
+ *   fields: string, // 字段配置JSON
+ *   featureApis: object, // 各功能的API配置 { hasSearchForm: { method, url }, hasTable: { method, url }, hasForm: { method, url } }
  * }
  */
 app.post('/api/generate', async (req, res) => {
   try {
-    const { name, apiUrl, hasSearchForm, hasTable, hasForm, fields } = req.body;
+    const { name, hasSearchForm, hasTable, hasForm, fields, featureApis } = req.body;
     
     // 验证参数
-    if (!name || !apiUrl) {
-      return res.status(400).json({ error: '页面名称和API地址不能为空' });
+    if (!name) {
+      return res.status(400).json({ error: '页面名称不能为空' });
     }
     
     // 解析字段配置
@@ -48,16 +49,32 @@ app.post('/api/generate', async (req, res) => {
       return res.status(400).json({ error: '字段配置JSON格式错误' });
     }
     
+    // 解析功能API配置
+    const apis = featureApis || {};
+    
     // 模拟生成结果（由于 Node 14 不兼容 plop 4.0.5）
     const mockResult = {
       changes: [
         {
           type: 'add',
-          path: `../src/views/${name}/index.vue`
+          path: `../src/views/${name}/index.vue`,
+          api: { method: 'GET', url: '' }
         },
-        ...(hasTable ? [{ type: 'add', path: `../src/views/${name}/${name}Table.vue` }] : []),
-        ...(hasForm ? [{ type: 'add', path: `../src/views/${name}/${name}Form.vue` }] : []),
-        ...(hasSearchForm ? [{ type: 'add', path: `../src/views/${name}/${name}SearchForm.vue` }] : []),
+        ...(hasTable ? [{ 
+          type: 'add', 
+          path: `../src/views/${name}/${name}Table.vue`,
+          api: apis.hasTable || { method: 'GET', url: '' }
+        }] : []),
+        ...(hasForm ? [{ 
+          type: 'add', 
+          path: `../src/views/${name}/${name}Form.vue`,
+          api: apis.hasForm || { method: 'POST', url: '' }
+        }] : []),
+        ...(hasSearchForm ? [{ 
+          type: 'add', 
+          path: `../src/views/${name}/${name}SearchForm.vue`,
+          api: apis.hasSearchForm || { method: 'GET', url: '' }
+        }] : []),
         {
           type: 'modify',
           path: '../src/router/index.js'

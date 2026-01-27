@@ -245,64 +245,133 @@ const handleClose = () => {
   height: 100%;
   display: flex;
   flex-direction: column;
-  padding: 20px;
-  background-color: white;
+  padding: 32px;
+  background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+  border-radius: 16px;
+  margin: 20px;
 }
 
 /* 字段配置内容 */
 .field-config {
   flex: 1;
   overflow-y: auto;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
 }
 
 /* 底部按钮 */
 .drawer-footer {
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
-  padding-top: 16px;
-  border-top: 1px solid #ebeef5;
+  gap: 16px;
+  padding: 24px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 12px;
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08);
+  margin-top: auto;
 }
 
 .drawer-footer .el-button {
   transition: all 0.3s ease;
-  font-size: 14px;
+  font-size: 16px;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 500;
 }
 
 .drawer-footer .el-button:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(64, 158, 255, 0.2);
+}
+
+.drawer-footer .el-button[type="primary"] {
+  background: linear-gradient(135deg, #409eff, #69c0ff);
+  border: none;
+  font-weight: 600;
+}
+
+.drawer-footer .el-button[type="primary"]:hover {
+  background: linear-gradient(135deg, #69c0ff, #409eff);
+  box-shadow: 0 6px 20px rgba(64, 158, 255, 0.3);
+}
+
+.drawer-footer .el-button {
+  background: rgba(255, 255, 255, 0.8);
+  border: 2px solid #dcdfe6;
+}
+
+.drawer-footer .el-button:hover {
+  border-color: #409eff;
+  color: #409eff;
+  background: rgba(64, 158, 255, 0.05);
+}
+
+/* 滚动条样式 */
+.field-config::-webkit-scrollbar {
+  width: 8px;
+}
+
+.field-config::-webkit-scrollbar-track {
+  background: rgba(64, 158, 255, 0.1);
+  border-radius: 4px;
+}
+
+.field-config::-webkit-scrollbar-thumb {
+  background: rgba(64, 158, 255, 0.5);
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.field-config::-webkit-scrollbar-thumb:hover {
+  background: rgba(64, 158, 255, 0.7);
 }
 
 /* 响应式设计 */
+@media (max-width: 1024px) {
+  .field-config-drawer {
+    padding: 24px;
+    margin: 16px;
+  }
+  
+  .field-config {
+    padding: 20px;
+  }
+}
+
 @media (max-width: 768px) {
   .field-config-drawer {
+    padding: 16px;
+    margin: 8px;
+  }
+  
+  .field-config {
     padding: 16px;
   }
   
   .drawer-footer {
     flex-direction: column;
     align-items: stretch;
+    gap: 12px;
+    padding: 16px;
+  }
+  
+  .drawer-footer .el-button {
+    font-size: 14px;
+    padding: 10px 20px;
   }
 }
 
-/* 滚动条样式 */
-.field-config::-webkit-scrollbar {
-  width: 6px;
-}
-
-.field-config::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 3px;
-}
-
-.field-config::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 3px;
-}
-
-.field-config::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
+@media (max-width: 480px) {
+  .field-config-drawer {
+    padding: 12px;
+    margin: 4px;
+  }
+  
+  .field-config {
+    padding: 12px;
+  }
 }
 </style>

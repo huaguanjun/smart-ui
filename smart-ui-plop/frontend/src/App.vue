@@ -53,11 +53,11 @@ const handleGenerate = async (formData) => {
     // 构建请求数据
     const requestData = {
       name: formData.name,
-      apiUrl: formData.apiUrl,
       hasSearchForm: formData.features.includes('hasSearchForm'),
       hasTable: formData.features.includes('hasTable'),
       hasForm: formData.features.includes('hasForm'),
-      fields: JSON.stringify(formData.fields)
+      fields: JSON.stringify(formData.fields),
+      featureApis: formData.featureApis || {}
     };
     
     // 调用API
@@ -101,20 +101,62 @@ const handleSaveFields = (fields) => {
 <style scoped>
 .app {
   min-height: 100vh;
-  background: white;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   height: 100vh;
   overflow: hidden;
-
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
 }
-
 
 /* 主内容区域 */
 .app-main {
-  padding: 0px;
-  max-width: 1000px;
-  margin: 0 auto;
+  padding: 0;
+  max-width: 900px;
   width: 100%;
   flex: 1;
   overflow-y: auto;
+  background-color: rgba(255, 255, 255, 0.95);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  backdrop-filter: blur(10px);
+  margin: 0 auto;
+}
+
+/* 滚动条样式 */
+.app-main::-webkit-scrollbar {
+  width: 8px;
+}
+
+.app-main::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.app-main::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.app-main::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .app {
+    padding: 10px;
+  }
+  
+  .app-main {
+    padding: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-main {
+    padding: 16px;
+  }
 }
 </style>
