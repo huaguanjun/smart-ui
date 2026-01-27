@@ -1,9 +1,6 @@
 <template>
   <div class="app">
     <el-container>
-      <!-- 应用头部 -->
-      <AppHeader />
-      
       <el-main class="app-main">
         <!-- 生成配置表单 -->
         <ConfigForm
@@ -16,9 +13,6 @@
         <!-- 生成结果 -->
         <ResultCard :result="result" />
       </el-main>
-      
-      <!-- 应用页脚 -->
-      <AppFooter />
     </el-container>
     
     <!-- 字段配置对话框 -->
@@ -34,9 +28,6 @@
 import { ref, reactive, defineProps, defineEmits } from 'vue';
 import { ElMessage } from 'element-plus';
 
-// 导入拆分后的组件
-import AppHeader from './components/app/AppHeader.vue';
-import AppFooter from './components/app/AppFooter.vue';
 import ConfigForm from './components/generation/ConfigForm.vue';
 import ResultCard from './components/generation/ResultCard.vue';
 import FieldConfigDialog from './components/field-config/FieldConfigDialog.vue';
@@ -110,35 +101,20 @@ const handleSaveFields = (fields) => {
 <style scoped>
 .app {
   min-height: 100vh;
-  background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%);
+  background: white;
+  height: 100vh;
+  overflow: hidden;
+
 }
 
-/* 容器样式 */
-.el-container {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
 
 /* 主内容区域 */
 .app-main {
-  padding: 40px;
+  padding: 0px;
   max-width: 1000px;
   margin: 0 auto;
   width: 100%;
   flex: 1;
-}
-
-/* 响应式设计 */
-@media (max-width: 768px) {
-  .app-main {
-    padding: 20px;
-  }
-}
-
-@media (max-width: 480px) {
-  .app-main {
-    padding: 16px;
-  }
+  overflow-y: auto;
 }
 </style>

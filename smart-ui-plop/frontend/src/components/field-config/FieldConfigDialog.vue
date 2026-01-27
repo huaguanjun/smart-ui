@@ -1,43 +1,51 @@
 <template>
-  <div class="field-config-container" v-if="visible">
-    <!-- 字段配置头部 -->
-    <FieldConfigHeader />
-    
-    <div class="field-config">
-      <!-- 字段列表表格 -->
-      <FieldTable
-        :fields="localFields"
-        @type-change="handleTypeChange"
-        @options-change="handleOptionsChange"
-        @move-up="handleMoveUp"
-        @move-down="handleMoveDown"
-        @delete-field="handleDeleteField"
-      />
+  <el-drawer
+    v-model="drawerVisible"
+    title="字段配置"
+    size="80%"
+    :destroy-on-close="true"
+    :with-header="false"
+  >
+    <div class="field-config-drawer">
+      <!-- 字段配置头部 -->
+      <FieldConfigHeader />
       
-      <!-- 操作按钮 -->
-      <FieldActions
-        @add-field="handleAddField"
-        @import-fields="handleImportFields"
-        @export-fields="handleExportFields"
-        @clear-fields="handleClearFields"
-      />
+      <div class="field-config">
+        <!-- 字段列表表格 -->
+        <FieldTable
+          :fields="localFields"
+          @type-change="handleTypeChange"
+          @options-change="handleOptionsChange"
+          @move-up="handleMoveUp"
+          @move-down="handleMoveDown"
+          @delete-field="handleDeleteField"
+        />
+        
+        <!-- 操作按钮 -->
+        <FieldActions
+          @add-field="handleAddField"
+          @import-fields="handleImportFields"
+          @export-fields="handleExportFields"
+          @clear-fields="handleClearFields"
+        />
+        
+        <!-- 字段统计 -->
+        <FieldStats :field-count="localFields.length" />
+        
+        <!-- JSON编辑器对话框 -->
+        <JsonEditorDialog
+          v-model="jsonDialogVisible"
+          :json-content="jsonContent"
+          @save="handleSaveJson"
+        />
+      </div>
       
-      <!-- 字段统计 -->
-      <FieldStats :field-count="localFields.length" />
-      
-      <!-- JSON编辑器对话框 -->
-      <JsonEditorDialog
-        v-model="jsonDialogVisible"
-        :json-content="jsonContent"
-        @save="handleSaveJson"
-      />
+      <div class="drawer-footer">
+        <el-button @click="handleCancel">取消</el-button>
+        <el-button type="primary" @click="handleSave">保存</el-button>
+      </div>
     </div>
-    
-    <div class="dialog-footer">
-      <el-button @click="handleCancel">取消</el-button>
-      <el-button type="primary" @click="handleSave">保存</el-button>
-    </div>
-  </div>
+  </el-drawer>
 </template>
 
 <script setup>
@@ -67,7 +75,7 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue', 'save']);
 
 // 响应式数据
-const visible = computed({
+const drawerVisible = computed({
   get: () => props.modelValue,
   set: (value) => emit('update:modelValue', value)
 });
@@ -219,42 +227,37 @@ const formatFields = (fields) => {
 const handleSave = () => {
   const formattedFields = formatFields(localFields.value);
   emit('save', formattedFields);
-  visible.value = false;
+  drawerVisible.value = false;
 };
 
 const handleCancel = () => {
-  visible.value = false;
+  drawerVisible.value = false;
 };
 
 const handleClose = () => {
-  visible.value = false;
+  drawerVisible.value = false;
 };
 </script>
 
 <style scoped>
-/* 字段配置容器 */
-.field-config-container {
-  margin-top: 20px;
+/* 字段配置抽屉 */
+.field-config-drawer {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
   padding: 20px;
   background-color: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-}
-
-.field-config-container:hover {
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
 /* 字段配置内容 */
 .field-config {
-  max-height: 60vh;
+  flex: 1;
   overflow-y: auto;
   margin-bottom: 20px;
 }
 
 /* 底部按钮 */
-.dialog-footer {
+.drawer-footer {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
@@ -262,23 +265,23 @@ const handleClose = () => {
   border-top: 1px solid #ebeef5;
 }
 
-.dialog-footer .el-button {
+.drawer-footer .el-button {
   transition: all 0.3s ease;
   font-size: 14px;
 }
 
-.dialog-footer .el-button:hover {
+.drawer-footer .el-button:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(64, 158, 255, 0.15);
 }
 
 /* 响应式设计 */
 @media (max-width: 768px) {
-  .field-config-container {
+  .field-config-drawer {
     padding: 16px;
   }
   
-  .dialog-footer {
+  .drawer-footer {
     flex-direction: column;
     align-items: stretch;
   }

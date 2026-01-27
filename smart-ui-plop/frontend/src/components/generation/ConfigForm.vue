@@ -1,103 +1,107 @@
 <template>
-  <el-card class="config-card" shadow="hover" :body-style="{ padding: '24px' }">
-    <template #header>
-      <div class="card-header">
-        <el-icon class="header-icon"><Tools /></el-icon>
-        <span>生成配置</span>
+  <div class="config-section">
+    <!-- 配置头部 -->
+    <div class="config-header">
+      <div class="header-icon">
+        <el-icon><Tools /></el-icon>
       </div>
-    </template>
+      <h2>生成配置</h2>
+    </div>
     
-    <el-form
-      ref="formRef"
-      :model="form"
-      :rules="rules"
-      label-width="120px"
-      class="config-form"
-    >
-      <!-- 页面名称 -->
-      <el-form-item label="页面名称" prop="name">
-        <el-input
-          v-model="form.name"
-          placeholder="请输入页面名称（PascalCase）"
-          maxlength="50"
-          show-word-limit
-          prefix-icon="User"
-        />
-        <el-alert
-          :title="'示例：UserList'"
-          type="info"
-          :closable="false"
-          show-icon
-          style="margin-top: 12px"
-        />
-      </el-form-item>
-      
-      <!-- API地址 -->
-      <el-form-item label="API地址" prop="apiUrl">
-        <el-input
-          v-model="form.apiUrl"
-          placeholder="请输入API地址"
-          maxlength="200"
-          show-word-limit
-          prefix-icon="Link"
-        />
-        <el-alert
-          :title="'示例：/api/user/list'"
-          type="info"
-          :closable="false"
-          show-icon
-          style="margin-top: 12px"
-        />
-      </el-form-item>
-      
-      <!-- 功能选择 -->
-      <el-form-item label="功能选择">
-        <el-checkbox-group v-model="form.features" class="feature-group">
-          <el-checkbox label="hasSearchForm" border>
-            <el-icon><Search /></el-icon>
-            <span>搜索表单</span>
-          </el-checkbox>
-          <el-checkbox label="hasTable" border>
-            <el-icon><DataTable /></el-icon>
-            <span>表格</span>
-          </el-checkbox>
-          <el-checkbox label="hasForm" border>
-            <el-icon><Edit /></el-icon>
-            <span>表单</span>
-          </el-checkbox>
-        </el-checkbox-group>
-      </el-form-item>
-      
-      <!-- 字段配置 -->
-      <el-form-item label="字段配置">
-        <el-button type="primary" @click="handleOpenFieldConfig">
-          <el-icon><Document /></el-icon>
-          配置字段
-        </el-button>
-        <el-alert
-          :title="'点击上方按钮配置字段，支持自动生成搜索表单、表格列和表单项'"
-          type="info"
-          :closable="false"
-          show-icon
-          style="margin-top: 12px"
-        />
-      </el-form-item>
-      
-      <!-- 操作按钮 -->
-      <el-form-item>
-        <div class="form-actions">
-          <el-button type="primary" @click="handleGenerate" :loading="loading" class="generate-btn">
-            <el-icon><Check /></el-icon>
-            生成页面
+    <div class="config-content">
+      <el-form
+        ref="formRef"
+        :model="form"
+        :rules="rules"
+        label-width="120px"
+        class="config-form"
+        size="mini"
+      >
+        <!-- 页面名称 -->
+        <el-form-item label="页面名称" prop="name">
+          <el-input
+            v-model="form.name"
+            placeholder="请输入页面名称（PascalCase）"
+            maxlength="50"
+            show-word-limit
+            prefix-icon="User"
+          />
+          <el-alert
+            :title="'示例：UserList'"
+            type="info"
+            :closable="false"
+            show-icon
+            style="margin-top: 12px"
+          />
+        </el-form-item>
+        
+        <!-- API地址 -->
+        <el-form-item label="API地址" prop="apiUrl">
+          <el-input
+            v-model="form.apiUrl"
+            placeholder="请输入API地址"
+            maxlength="200"
+            show-word-limit
+            prefix-icon="Link"
+          />
+          <el-alert
+            :title="'示例：/api/user/list'"
+            type="info"
+            :closable="false"
+            show-icon
+            style="margin-top: 12px"
+          />
+        </el-form-item>
+        
+        <!-- 功能选择 -->
+        <el-form-item label="功能选择">
+          <el-checkbox-group v-model="form.features" class="feature-group">
+            <el-checkbox label="hasSearchForm" border>
+              <el-icon><Search /></el-icon>
+              <span>搜索表单</span>
+            </el-checkbox>
+            <el-checkbox label="hasTable" border>
+              <el-icon><DataTable /></el-icon>
+              <span>表格</span>
+            </el-checkbox>
+            <el-checkbox label="hasForm" border>
+              <el-icon><Edit /></el-icon>
+              <span>表单</span>
+            </el-checkbox>
+          </el-checkbox-group>
+        </el-form-item>
+        
+        <!-- 字段配置 -->
+        <el-form-item label="字段配置">
+          <el-button type="primary" @click="handleOpenFieldConfig">
+            <el-icon><Document /></el-icon>
+            配置字段
           </el-button>
-          <el-button @click="handleReset">
-            <el-icon><Refresh /></el-icon>
-            重置
-          </el-button>
-        </div>
-      </el-form-item>
-    </el-form>
-  </el-card>
+          <el-alert
+            :title="'点击上方按钮配置字段，支持自动生成搜索表单、表格列和表单项'"
+            type="info"
+            :closable="false"
+            show-icon
+            style="margin-top: 12px"
+          />
+        </el-form-item>
+        
+        <!-- 操作按钮 -->
+        <el-form-item>
+          <div class="form-actions">
+            <el-button type="primary" @click="handleGenerate" :loading="loading" class="generate-btn">
+              <el-icon><Check /></el-icon>
+              生成页面
+            </el-button>
+            <el-button @click="handleReset">
+              <el-icon><Refresh /></el-icon>
+              重置
+            </el-button>
+          </div>
+        </el-form-item>
+      </el-form>
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -185,34 +189,41 @@ defineExpose({
 </script>
 
 <style scoped>
-/* 卡片样式 */
-.config-card {
-  border-radius: 12px;
-  overflow: hidden;
-  transition: all 0.3s ease;
+/* 配置区块样式 */
+.config-section {
+  background-color: white;
 }
 
-.config-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-}
-
-.card-header {
+/* 配置头部 */
+.config-header {
   display: flex;
   align-items: center;
-  font-size: 16px;
-  font-weight: 600;
-  color: #303133;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #ebeef5;
 }
 
-.header-icon {
-  margin-right: 8px;
+.config-header .header-icon {
+  font-size: 20px;
+  margin-right: 12px;
   color: #409eff;
+}
+
+.config-header h2 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #303133;
+  margin: 0;
+}
+
+/* 配置内容 */
+.config-content {
+  width: 100%;
 }
 
 /* 表单样式 */
 .config-form {
-  margin-top: 8px;
+  width: 100%;
 }
 
 .feature-group {
@@ -284,6 +295,10 @@ defineExpose({
 
 /* 响应式设计 */
 @media (max-width: 768px) {
+  .config-section {
+    padding: 24px;
+  }
+  
   .feature-group {
     flex-direction: column;
   }
@@ -298,6 +313,16 @@ defineExpose({
   
   .generate-btn {
     width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .config-section {
+    padding: 16px;
+  }
+  
+  .config-header h2 {
+    font-size: 16px;
   }
 }
 </style>
