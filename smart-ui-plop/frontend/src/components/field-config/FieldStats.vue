@@ -3,7 +3,6 @@
     <el-tag effect="plain">{{ fieldCount }} 个字段</el-tag>
     <el-tooltip content="字段顺序会影响生成页面的显示顺序" placement="top">
       <el-tag effect="plain" type="info">
-        <el-icon><Warning /></el-icon>
         拖拽表格行可调整顺序
       </el-tag>
     </el-tooltip>

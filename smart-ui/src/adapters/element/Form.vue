@@ -81,7 +81,7 @@ const formRef = ref<any>(null)
  * 只负责把 FormEngine 给的 props + attrs 透传给 el-form
  */
 const formProps = computed(() => Object.assign({}, attrs, props))
-
+console.log('formProps', formProps.value)
 /* ----------------------------- expose api ----------------------------- */
 
 defineExpose({

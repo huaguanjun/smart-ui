@@ -9,107 +9,113 @@
     </div>
     
     <div class="config-content">
-      <el-form
+      <SmartForm
         ref="formRef"
         :model="form"
         :rules="rules"
+        :fields="formFields"
         label-width="80px"
         class="config-form"
-        size="mini"
+        size="default"
+        @onValuesChange="handleValuesChange"
       >
-        <!-- 页面名称 -->
-        <el-form-item label="页面路径" prop="name">
-          <el-input
-            v-model="form.name"
-            placeholder="请输入页面名称（PascalCase）"
-            maxlength="50"
-            show-word-limit
-            prefix-icon="User"
-          />
-          <el-alert
-            :title="'示例：UserList'"
-            type="info"
-            :closable="false"
-            show-icon
-            style="margin-top: 12px"
-          />
-        </el-form-item>
-        
-        <!-- 功能选择 -->
-        <el-form-item label="功能选择">
-          <el-checkbox-group v-model="form.features" class="feature-group">
-            <el-checkbox label="hasSearchForm" border>
-              <el-icon><Search /></el-icon>
-              <span>表格搜索</span>
-            </el-checkbox>
-            <el-checkbox label="hasTable" border>
-              <el-icon><DataTable /></el-icon>
-              <span>表格主体</span>
-            </el-checkbox>
-            <el-checkbox label="hasForm" border>
-              <el-icon><Edit /></el-icon>
-              <span>新增表单</span>
-            </el-checkbox>
-          </el-checkbox-group>
-        </el-form-item>
-        
-        <!-- API配置 -->
-        <div v-if="form.features.length > 0" class="api-config-section">
-          <div class="api-config-header">API配置</div>
-          <div v-for="feature in form.features" :key="feature" class="api-config-item">
-            <div class="api-config-label">
-              <el-icon><Setting /></el-icon>
-              <span>{{ getFeatureLabel(feature) }}</span>
-            </div>
-            <div class="api-config-inputs">
-              <el-select v-model="form.featureApis[feature].method" class="api-method-select" placeholder="方法">
-                <el-option label="GET" value="GET" />
-                <el-option label="POST" value="POST" />
-              </el-select>
+        <!-- 使用默认插槽传递内容 -->
+        <template #default>
+          <div>
+            <!-- 页面名称 -->
+            <el-form-item label="页面路径" prop="name">
               <el-input
-                v-model="form.featureApis[feature].url"
-                :placeholder="`请输入${getFeatureLabel(feature)}的API地址`"
-                prefix-icon="Link"
+                v-model="form.name"
+                placeholder="请输入页面名称（PascalCase）"
+                maxlength="50"
+                show-word-limit
+                prefix-icon="User"
               />
+              <el-alert
+                :title="'示例：UserList'"
+                type="info"
+                :closable="false"
+                show-icon
+                style="margin-top: 12px"
+              />
+            </el-form-item>
+            
+            <!-- 功能选择 -->
+            <el-form-item label="功能选择">
+              <el-checkbox-group v-model="form.features" class="feature-group">
+                <el-checkbox label="hasSearchForm" border>
+                  <el-icon><Search /></el-icon>
+                  <span>表格搜索</span>
+                </el-checkbox>
+                <el-checkbox label="hasTable" border>
+                  <el-icon><DataTable /></el-icon>
+                  <span>表格主体</span>
+                </el-checkbox>
+                <el-checkbox label="hasForm" border>
+                  <el-icon><Edit /></el-icon>
+                  <span>新增表单</span>
+                </el-checkbox>
+              </el-checkbox-group>
+            </el-form-item>
+            
+            <!-- API配置 -->
+            <div v-if="form.features.length > 0" class="api-config-section">
+              <div class="api-config-header">API配置</div>
+              <div v-for="feature in form.features" :key="feature" class="api-config-item">
+                <div class="api-config-label">
+                  <el-icon><Setting /></el-icon>
+                  <span>{{ getFeatureLabel(feature) }}</span>
+                </div>
+                <div class="api-config-inputs">
+                  <el-select v-model="form.featureApis[feature].method" class="api-method-select" placeholder="方法">
+                    <el-option label="GET" value="GET" />
+                    <el-option label="POST" value="POST" />
+                  </el-select>
+                  <el-input
+                    v-model="form.featureApis[feature].url"
+                    :placeholder="`请输入${getFeatureLabel(feature)}的API地址`"
+                    prefix-icon="Link"
+                  />
+                </div>
+              </div>
+            </div>
+            
+            <!-- 字段配置 -->
+            <el-form-item label="字段配置">
+              <el-button type="primary" @click="handleOpenFieldConfig">
+                <el-icon><Document /></el-icon>
+                配置字段
+              </el-button>
+              <el-alert
+                :title="'点击上方按钮配置字段，支持自动生成搜索表单、表格列和表单项'"
+                type="info"
+                :closable="false"
+                show-icon
+                style="margin-top: 12px"
+              />
+            </el-form-item>
+            
+            <!-- 操作按钮 -->
+            <div class="form-actions">
+              <el-button type="primary" @click="handleGenerate" :loading="loading" class="generate-btn">
+                <el-icon><Check /></el-icon>
+                生成页面
+              </el-button>
+              <el-button @click="handleReset">
+                <el-icon><Refresh /></el-icon>
+                重置
+              </el-button>
             </div>
           </div>
-        </div>
-        
-        <!-- 字段配置 -->
-        <el-form-item label="字段配置">
-          <el-button type="primary" @click="handleOpenFieldConfig">
-            <el-icon><Document /></el-icon>
-            配置字段
-          </el-button>
-          <el-alert
-            :title="'点击上方按钮配置字段，支持自动生成搜索表单、表格列和表单项'"
-            type="info"
-            :closable="false"
-            show-icon
-            style="margin-top: 12px"
-          />
-        </el-form-item>
-        
-        <!-- 操作按钮 -->
-        <el-form-item>
-          <div class="form-actions">
-            <el-button type="primary" @click="handleGenerate" :loading="loading" class="generate-btn">
-              <el-icon><Check /></el-icon>
-              生成页面
-            </el-button>
-            <el-button @click="handleReset">
-              <el-icon><Refresh /></el-icon>
-              重置
-            </el-button>
-          </div>
-        </el-form-item>
-      </el-form>
+        </template>
+      </SmartForm>
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref, reactive, defineProps, defineEmits } from 'vue';
+import SmartForm from '../../../../../smart-ui/src/components/form/SmartForm.vue';
 import {
   Tools,
   User,
@@ -162,6 +168,14 @@ const rules = {
   apiUrl: [
     { required: true, message: '请输入API地址', trigger: 'blur' }
   ]
+};
+
+// 表单字段配置
+const formFields = [];
+
+// 处理表单值变化
+const handleValuesChange = (changedValues, allValues) => {
+  console.log('表单值变化:', changedValues, allValues);
 };
 
 // 方法

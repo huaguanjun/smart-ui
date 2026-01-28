@@ -1,89 +1,66 @@
 <template>
-  <el-table
-    ref="tableRef"
-    :data="fields"
-    style="width: 100%"
-    border
-    stripe
-    highlight-current-row
-    class="fields-table"
-  >
-    <el-table-column prop="label" label="字段标签" width="140">
+  <div class="fields-table-container">
+    <div class="table-header">
+      <h3>表格字段配置</h3>
+    </div>
+    <el-table
+      ref="tableRef"
+      :data="fields"
+      style="width: 100%"
+      border
+      stripe
+      highlight-current-row
+      class="fields-table"
+      @expand-change="handleExpandChange"
+    >
+    <el-table-column type="expand">
       <template #default="scope">
-        <el-input
-          v-model="scope.row.label"
-          placeholder="请输入字段标签"
-          size="default"
-          prefix-icon="Position"
-        />
+        <div class="field-expand-form">
+          <SmartForm 
+            :ref="(el) => { if (el) formRefs[scope.$index] = el; }"
+            :model="editingFields[scope.$index]"
+            adapter="element"
+            labelWidth="90px"
+            labelPosition="right"
+            class="expand-form"
+            size="default"
+            :rules="formRules"
+            :fields="getFormFields(scope.$index)"
+            @onValuesChange="handleValuesChange"
+          >
+            <template #default>
+              <div class="form-actions">
+                <el-button type="primary" @click="handleSaveField(scope.$index)">
+                  确认
+                </el-button>
+                <el-button @click="handleCancelEdit(scope.$index)">
+                  取消
+                </el-button>
+              </div>
+            </template>
+          </SmartForm>
+        </div>
+      </template>
+    </el-table-column>
+    <el-table-column prop="label" label="字段标签">
+      <template #default="scope">
+        <span class="field-text">{{ scope.row.label || '-' }}</span>
       </template>
     </el-table-column>
     
-    <el-table-column prop="field" label="字段名" width="140">
+    <el-table-column prop="field" label="字段名">
       <template #default="scope">
-        <el-input
-          v-model="scope.row.field"
-          placeholder="请输入字段名"
-          size="default"
-          prefix-icon="Document"
-        />
+        <span class="field-text">{{ scope.row.field || '-' }}</span>
       </template>
     </el-table-column>
     
-    <el-table-column prop="type" label="字段类型" width="140">
+    <el-table-column prop="type" label="字段类型">
       <template #default="scope">
-        <el-select
-          v-model="scope.row.type"
-          placeholder="请选择字段类型"
-          size="default"
-          style="width: 100%"
-          @change="handleTypeChange(scope.row)"
-        >
-          <el-option label="输入框" value="input" />
-          <el-option label="下拉选择" value="select" />
-          <el-option label="日期选择" value="date" />
-          <el-option label="开关" value="switch" />
-        </el-select>
+        <span class="field-text">{{ getTypeLabel(scope.row.type) }}</span>
       </template>
     </el-table-column>
     
-    <el-table-column prop="options" label="选项配置" width="220">
-      <template #default="scope">
-        <el-input
-          v-if="scope.row.type === 'select'"
-          v-model="scope.row.optionsJson"
-          placeholder='[{"label":"选项1","value":1}]'
-          size="default"
-          type="textarea"
-          rows="2"
-          @change="handleOptionsChange(scope.row)"
-          resize="none"
-          class="options-input"
-        />
-        <span v-else class="no-options">-</span>
-      </template>
-    </el-table-column>
-    
-    <el-table-column label="使用场景">
-      <template #default="scope">
-        <el-checkbox-group v-model="scope.row.scenes" class="scenes-group">
-          <el-checkbox label="search" border>
-            <el-icon><Search /></el-icon>
-            <span>搜索</span>
-          </el-checkbox>
-          <el-checkbox label="table" border>
-            <el-icon><Grid /></el-icon>
-            <span>表格</span>
-          </el-checkbox>
-          <el-checkbox label="form" border>
-            <el-icon><Edit /></el-icon>
-            <span>表单</span>
-          </el-checkbox>
-        </el-checkbox-group>
-      </template>
-    </el-table-column>
-    
-    <el-table-column label="操作" width="120" fixed="right">
+    <el-table-column label="操作" width="200" fixed="right">
       <template #default="scope">
         <div class="field-operations">
           <el-button
@@ -91,44 +68,41 @@
             size="small"
             @click="handleMoveUp(scope.$index)"
             :disabled="scope.$index === 0"
-            class="move-btn"
-          >
-            <el-icon><Top /></el-icon>
-          </el-button>
+            :icon="Top"
+            round
+          />
           <el-button
             type="primary"
             size="small"
             @click="handleMoveDown(scope.$index)"
             :disabled="scope.$index === fields.length - 1"
-            class="move-btn"
-          >
-            <el-icon><Bottom /></el-icon>
-          </el-button>
+            :icon="Bottom"
+            round
+          />
           <el-button
             type="danger"
             size="small"
             @click="handleDeleteField(scope.$index)"
-            class="delete-btn"
-          >
-            <el-icon><Delete /></el-icon>
-          </el-button>
+            round
+            :icon="Delete"
+          />
         </div>
       </template>
     </el-table-column>
   </el-table>
+  </div>
 </template>
 
 <script setup>
 import { ref, defineProps, defineEmits } from 'vue';
+import { ElMessage } from 'element-plus';
+import SmartForm from '../../../../../smart-ui/src/components/form/SmartForm.vue';
 import {
-  Position,
-  Document,
-  Search,
-  Grid,
-  Edit,
   Top,
   Bottom,
-  Delete
+  Delete,
+  Check,
+  Close
 } from '@element-plus/icons-vue';
 
 // Props
@@ -141,23 +115,135 @@ const props = defineProps({
 
 // Emits
 const emit = defineEmits([
-  'typeChange',
-  'optionsChange',
   'moveUp',
   'moveDown',
-  'deleteField'
+  'deleteField',
+  'saveField',
+  'cancelEdit'
 ]);
 
 // 表格引用
 const tableRef = ref(null);
+const expandedRows = ref([]);
+const editingFields = ref({});
+const formRefs = ref({});
 
-// 方法
-const handleTypeChange = (row) => {
-  emit('typeChange', row);
+// 表单验证规则
+const formRules = {
+  label: [
+    { required: true, message: '请输入字段标签', trigger: 'blur' }
+  ],
+  field: [
+    { required: true, message: '请输入字段名', trigger: 'blur' }
+  ],
+  type: [
+    { required: true, message: '请选择字段类型', trigger: 'change' }
+  ]
 };
 
-const handleOptionsChange = (row) => {
-  emit('optionsChange', row);
+// 方法
+const getTypeLabel = (type) => {
+  const typeMap = {
+    'input': '输入框',
+    'select': '下拉选择',
+    'date': '日期选择',
+    'switch': '开关'
+  };
+  return typeMap[type] || '-';
+};
+
+// 获取表单字段配置
+const getFormFields = (index) => {
+  return [
+    {
+      name: 'label',
+      label: '字段标签',
+      type: 'input',
+      placeholder: '请输入字段标签',
+      rules: formRules.label
+    },
+    {
+      name: 'field',
+      label: '字段名',
+      type: 'input',
+      placeholder: '请输入字段名',
+      rules: formRules.field
+    },
+    {
+      name: 'type',
+      label: '字段类型',
+      type: 'select',
+      placeholder: '请选择字段类型',
+      rules: formRules.type,
+      options: [
+        { label: '输入框', value: 'input' },
+        { label: '下拉选择', value: 'select' },
+        { label: '日期选择', value: 'date' },
+        { label: '开关', value: 'switch' }
+      ]
+    },
+    {
+      name: 'defaultValue',
+      label: '默认值',
+      type: 'input',
+      placeholder: '请输入默认值'
+    },
+    {
+      name: 'required',
+      label: '是否必填',
+      type: 'switch'
+    },
+    {
+      name: 'disabled',
+      label: '是否禁用',
+      type: 'switch'
+    }
+  ];
+};
+
+// 处理表单值变化
+const handleValuesChange = (changedValues, allValues) => {
+  console.log('表单值变化:', changedValues, allValues);
+};
+
+const handleExpandChange = (row, expanded) => {
+  expandedRows.value = expanded;
+  
+  // 当展开时，初始化编辑数据
+  if (expanded.includes(row)) {
+    const index = props.fields.findIndex(field => field === row);
+    if (index !== -1) {
+      editingFields.value[index] = { ...row };
+    }
+  }
+};
+
+const handleSaveField = (index) => {
+  const formRef = formRefs.value[index];
+  if (!formRef) return;
+  
+  // 验证表单
+  formRef.validate((valid) => {
+    if (valid) {
+      emit('saveField', { index, data: editingFields.value[index] });
+      ElMessage.success('保存成功');
+    } else {
+      ElMessage.warning('请填写必填字段');
+    }
+  });
+};
+
+const handleCancelEdit = (index) => {
+  // 恢复原始数据
+  const originalField = props.fields[index];
+  editingFields.value[index] = { ...originalField };
+  
+  // 折叠展开行
+  if (tableRef.value) {
+    tableRef.value.toggleRowExpansion(originalField, false);
+  }
+  
+  emit('cancelEdit', { index, data: editingFields.value[index] });
 };
 
 const handleMoveUp = (index) => {
@@ -174,27 +260,59 @@ const handleDeleteField = (index) => {
 </script>
 
 <style scoped>
-/* 表格样式 */
-.fields-table {
-  border-radius: 8px;
-  overflow: hidden;
+.form-actions {
+  text-align: center;
+}
+/* 容器样式 */
+.fields-table-container {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  padding: 20px;
+  margin-bottom: 24px;
   transition: all 0.3s ease;
-  margin-bottom: 20px;
 }
 
-.fields-table:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+.fields-table-container:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+/* 表格头部 */
+.table-header {
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e4e7ed;
+}
+
+.table-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #303133;
+}
+
+/* 表格样式 */
+.fields-table {
+  overflow: hidden;
+  transition: all 0.3s ease;
 }
 
 .fields-table .el-table__header-wrapper th {
-  background-color: #f8f9fa;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
   font-weight: 600;
   color: #303133;
   font-size: 14px;
+  padding: 12px 8px;
+  border-bottom: 2px solid #409eff;
+}
+
+.fields-table .el-table__body-wrapper {
+  border-radius: 0 0 8px 8px;
 }
 
 .fields-table .el-table__row {
   transition: all 0.3s ease;
+  height: 50px;
 }
 
 .fields-table .el-table__row:hover {
@@ -205,76 +323,57 @@ const handleDeleteField = (index) => {
   background-color: #e6f7ff !important;
 }
 
-/* 选项输入框 */
-.options-input {
-  border-radius: 4px;
-  transition: all 0.3s ease;
+/* 字段文本样式 */
+.field-text {
   font-size: 14px;
+  color: #303133;
+  line-height: 1.4;
+  display: block;
+  padding: 4px 0;
 }
 
-.options-input:focus {
-  border-color: #409eff;
-  box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.2);
-}
-
-.no-options {
-  color: #909399;
-  font-style: italic;
-  font-size: 14px;
-}
-
-/* 使用场景 */
-.scenes-group {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  align-items: center;
-}
-
-.scenes-group .el-checkbox {
-  padding: 4px 8px;
-  border-radius: 4px;
+/* 展开表单 */
+.field-expand-form {
+  padding: 20px;
+  border-radius: 8px;
+  margin: 10px 0;
   transition: all 0.3s ease;
-  font-size: 13px;
+  animation: expandForm 0.3s ease-out;
 }
 
-.scenes-group .el-checkbox:hover {
-  border-color: #409eff;
-  box-shadow: 0 2px 8px rgba(64, 158, 255, 0.15);
+/* 展开表单动画 */
+@keyframes expandForm {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.scenes-group .el-checkbox__label {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 13px;
+/* 表格展开/折叠动画 */
+.fields-table .el-table__expand-icon {
+  transition: all 0.3s ease;
+}
+
+.fields-table .el-table__expand-icon:hover {
+  color: #409eff;
+  transform: scale(1.1);
+}
+
+.fields-table .el-table__expand-icon.is-expanded {
+  color: #409eff;
 }
 
 /* 字段操作 */
 .field-operations {
   display: flex;
-  gap: 4px;
+  gap: 8px;
   align-items: center;
   justify-content: center;
-}
-
-.move-btn {
-  flex: 1;
-  min-width: 28px;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-}
-
-.delete-btn {
-  min-width: 28px;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
+  padding: 4px 0;
 }
 
 /* 动画效果 */
@@ -291,5 +390,34 @@ const handleDeleteField = (index) => {
 
 .fields-table .el-table__row {
   animation: fadeIn 0.3s ease;
+  transition: all 0.3s ease;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .fields-table-container {
+    padding: 16px;
+  }
+  
+  .table-header h3 {
+    font-size: 16px;
+  }
+  
+  .fields-table .el-table__header-wrapper th {
+    padding: 10px 6px;
+    font-size: 13px;
+  }
+  
+  .fields-table .el-table__row {
+    height: 48px;
+  }
+  
+  .field-operations {
+    gap: 4px;
+  }
+  
+  .el-table-column[label="操作"] {
+    width: 140px !important;
+  }
 }
 </style>
