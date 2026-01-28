@@ -19,6 +19,7 @@
           @move-up="handleMoveUp"
           @move-down="handleMoveDown"
           @delete-field="handleDeleteField"
+          @save-field="handleSaveField"
         />
         
         <!-- 操作按钮 -->
@@ -236,6 +237,17 @@ const handleCancel = () => {
 
 const handleClose = () => {
   drawerVisible.value = false;
+};
+
+const handleSaveField = ({ index, data }) => {
+  if (index >= 0 && index < localFields.value.length) {
+    // 更新本地字段数据
+    localFields.value[index] = {
+      ...localFields.value[index],
+      ...data
+    };
+    console.log('字段保存成功:', localFields.value[index]);
+  }
 };
 </script>
 

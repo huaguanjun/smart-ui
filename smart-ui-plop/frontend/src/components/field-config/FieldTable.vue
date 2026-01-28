@@ -24,6 +24,7 @@
             labelPosition="right"
             class="expand-form"
             size="default"
+            :itemSpan="12"
             :rules="formRules"
             :fields="getFormFields(scope.$index)"
             @onValuesChange="handleValuesChange"
@@ -101,8 +102,6 @@ import {
   Top,
   Bottom,
   Delete,
-  Check,
-  Close
 } from '@element-plus/icons-vue';
 
 // Props
